@@ -1,0 +1,75 @@
+<?php
+
+namespace {{namespace}}Http\Controllers\{{base_namespace_small}};
+
+use {{namespace}}Http\Controllers\Controller;
+use {{namespace}}Models\{{singular}};
+use {{namespace}}Repositories\{{singular}}RepositoryInterface;
+use {{namespace}}Http\Requests\Store{{singular}}Request;
+use Illuminate\Routing\Controllers\Middleware;
+use Spatie\Permission\Middleware\PermissionMiddleware;
+use {{namespace}}Http\Requests\Update{{singular}}Request;
+
+class {{singular}}Controller extends Controller
+{
+    public function __construct(
+        protected {{singular}}RepositoryInterface $repository
+    ) {}
+
+    public static function middleware(): array
+    {
+        $middlewares = [
+            new Middleware('auth:admin'),
+        ];
+
+        foreach ({{singular}}::getPermissions() as $permission => $methods) {
+            $middlewares[] = new Middleware(PermissionMiddleware::using($permission), only: $methods);
+        }
+        return $middlewares;
+    }
+
+    public function index(Request $request)
+    {
+        $perPageSessionKey = 'per_page_{{variable}}';
+
+        if ($request->filled('export')) {
+            return $this->repository->export($request, $perPageSessionKey);
+        }
+        $trashedCount = $this->repository->getTrashedCount();
+        $roles = Role::active()->get( );
+        ${{snakePlural}} = $this->repository->all($request, $perPageSessionKey);
+        return view('{{base_namespace_small}}.{{snakePlural}}.index', get_defined_vars());
+
+    }
+
+    public function create()
+    {
+        $countries = $this->repository->getActiveScopedCountry();
+        $roles = $this->repository->getRole();
+        return view('{{base_namespace_small}}.{{snakePlural}}.create', get_defined_vars());
+    }
+
+    public function archive()
+    {
+        $deleted{{plural}} = $this->repository->getArchived();
+        return view('{{base_namespace_small}}.{{plural}}.archive', compact('deleted{{plural}}'));
+    }
+
+    public function restore($uuid)
+    {
+        $this->repository->restore($uuid);
+        return redirect()->route('{{snakePlural}}.index');
+    }
+
+    public function forceDelete($uuid)
+    {
+        $this->repository->forceDelete($uuid);
+        return redirect()->route('{{snakePlural}}.archive');
+    }
+
+    public function changeActive($id)
+    {
+        $this->repository->changeStatus($id);
+        return response()->json(['success' => true]);
+    }
+}
