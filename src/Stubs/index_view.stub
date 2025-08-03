@@ -55,7 +55,7 @@
                     </button>
                 </form>
             </div>
-            @if((Auth::guard('{{variable}}')->check()&& Auth::guard('{{variable}}')->user()->can('{{variable}}.add')))
+            @if((Auth::guard('admin')->check()&& Auth::guard('admin')->user()->can('{{variable}}.add')))
             <form action="{{route('{{base_namespace_small}}.{{snakePlural}}.create')}}" method="get">
                 <button class="add-btn" type="submit"
                 >@lang('{{base_namespace_small}}.add_{{variable}}')
@@ -64,7 +64,7 @@
                 </button>
             </form>
             @endif
-            @if((Auth::guard('{{variable}}')->check()&& Auth::guard('{{variable}}')->user()->can('{{variable}}.delete')))
+            @if((Auth::guard('admin')->check()&& Auth::guard('admin')->user()->can('{{variable}}.delete')))
             <form action="{{route('{{base_namespace_small}}.{{snakePlural}}.archive')}}" method="get">
                 <button class="archive-btn" type="submit"
                 >@lang('{{base_namespace_small}}.archived_{{snakePlural}}') ({{$trashedCount}})
@@ -153,7 +153,7 @@
                                     <th class="text-center">
                                         @lang('{{base_namespace_small}}.role')
                                     </th>
-                                    @if((Auth::guard('{{variable}}')->check()&& Auth::guard('{{variable}}')->user()->can('{{variable}}.edit')))
+                                    @if((Auth::guard('admin')->check()&& Auth::guard('admin')->user()->can('{{variable}}.edit')))
 
                                     <th class="text-center">
                                         @lang('{{base_namespace_small}}.status')
@@ -172,7 +172,7 @@
                                     <td class="text-center align-middle">{{ Str::limit(${{variable}}->email, 25) }}</td>
                                     <td class="text-center align-middle">{{ Str::limit(${{variable}}->mobile, 25) }}</td>
                                     <td class="text-center align-middle">{{ Str::limit(${{variable}}->getRoleNames()->first(), 25) }}</td>
-                                    @if((Auth::guard('{{variable}}')->check()&& Auth::guard('{{variable}}')->user()->can('{{variable}}.edit')))
+                                    @if((Auth::guard('admin')->check()&& Auth::guard('admin')->user()->can('{{variable}}.edit')))
 
                                     <td class="text-center align-middle">
                                         <form action="{{ route('{{base_namespace_small}}.{{snakePlural}}.change.active', ${{variable}}->id) }}" method="POST">
@@ -192,17 +192,17 @@
                                     {{--                                        <td class="text-center">مهندسين</td>--}}
                                     <td>
                                         <div class="d-flex justify-content-center">
-                                            @if((Auth::guard('{{variable}}')->check()&& Auth::guard('{{variable}}')->user()->can('{{variable}}.view')))
+                                            @if((Auth::guard('admin')->check()&& Auth::guard('admin')->user()->can('{{variable}}.view')))
                                             <a href="{{route('{{base_namespace_small}}.{{snakePlural}}.show', ${{variable}}->uuid)}}" class="btn btn-icon">
                                                 <img src="{{ asset('assets/images/icons/eye.svg') }}" alt="View" width="20" height="20">
                                             </a>
                                             @endif
-                                            @if((Auth::guard('{{variable}}')->check()&& Auth::guard('{{variable}}')->user()->can('{{variable}}.edit')))
+                                            @if((Auth::guard('admin')->check()&& Auth::guard('admin')->user()->can('{{variable}}.edit')))
                                             <a href="{{route('{{base_namespace_small}}.{{snakePlural}}.edit', ${{variable}}->uuid)}}" class="btn btn-icon">
                                                 <img src="{{ asset('assets/images/icons/pencilsimple.svg') }}" alt="Edit" width="20" height="20">
                                             </a>
                                             @endif
-                                            @if((Auth::guard('{{variable}}')->check()&& Auth::guard('{{variable}}')->user()->can('{{variable}}.delete')))
+                                            @if((Auth::guard('admin')->check()&& Auth::guard('admin')->user()->can('{{variable}}.delete')))
                                             <a href="#" class="btn btn-icon"
                                                data-bs-toggle="modal"
                                                data-bs-target="#deleteConfirmation_{{ ${{variable}}->uuid }}">

@@ -48,7 +48,7 @@
             {{--                <div>--}}
                 {{--                    <img src="{{ asset('assets/images/homePage/xlcs.svg') }}" alt="Excel Export">--}}
                 {{--                </div>--}}
-            @if((Auth::guard('{{variable}}')->check()&& Auth::guard('{{variable}}')->user()->can('{{variable}}.view')))
+            @if((Auth::guard('admin')->check()&& Auth::guard('admin')->user()->can('{{variable}}.view')))
 
             <form action="{{route('{{base_namespace_small}}.{{snakePlural}}.index')}}" method="get">
                 <button class="add-btn" type="submit"

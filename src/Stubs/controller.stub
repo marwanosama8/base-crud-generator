@@ -4,11 +4,13 @@ namespace {{namespace}}Http\Controllers\{{base_namespace_small}};
 
 use {{namespace}}Http\Controllers\Controller;
 use {{namespace}}Models\{{singular}};
-use {{namespace}}Repositories\Interface\{{singular}}RepositoryInterface;
+use {{namespace}}Models\Role;
+use {{namespace}}Repositories\Interfaces\{{singular}}RepositoryInterface;
 use {{namespace}}Http\Requests\{{singular}}\Store{{singular}}Request;
 use Illuminate\Routing\Controllers\Middleware;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use {{namespace}}Http\Requests\{{singular}}\Update{{singular}}Request;
+use Illuminate\Http\Request;
 
 class {{singular}}Controller extends Controller
 {

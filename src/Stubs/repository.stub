@@ -2,11 +2,11 @@
 
 namespace App\Repositories;
 
-use App\Models\Admin;
+use App\Models\{{singular}};
 use App\Models\Country;
 use App\Models\Role;
 use App\Repositories\Concerns\PaginationPerPage;
-use App\Repositories\Interfaces\AdminRepositoryInterface;
+use App\Repositories\Interfaces\{{singular}}RepositoryInterface;
 use App\Services\ExportExcelService;
 use App\Services\ExportPDFService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
