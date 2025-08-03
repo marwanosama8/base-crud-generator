@@ -67,14 +67,32 @@ class GenerateCrudCommand extends Command
     {
         $capitalFirstLetterNamespace = ucfirst(strtolower($namespace));
         $smallFirstLetterNamespace = lcfirst(strtolower($namespace));
+
+        // Define all directories that need to exist
+        $directories = [
+            app_path("Http/Controllers/{$smallFirstLetterNamespace}"),
+            app_path("Repositories/Interfaces"),
+            app_path("Models"),
+            app_path("Http/Requests"),
+            database_path("migrations"),
+            resource_path("views/{$smallFirstLetterNamespace}/{$this->snakePlural}"),
+        ];
+
+        // Create directories if they don't exist
+        foreach ($directories as $directory) {
+            if (!$this->filesystem->isDirectory($directory)) {
+                $this->filesystem->makeDirectory($directory, 0755, true);
+            }
+        }
+
         $files = [
             'Controller' => app_path("Http/Controllers/{$smallFirstLetterNamespace}/{$this->singular}Controller.php"),
             'Repository' => app_path("Repositories/{$this->singular}Repository.php"),
             'RepositoryInterface' => app_path("Repositories/Interfaces/{$this->singular}RepositoryInterface.php"),
             'Model' => app_path("Models/{$this->singular}.php"),
             'Migration' => database_path("migrations/" . date('Y_m_d_His') . "_create_{$this->snakePlural}_table.php"),
-            'StoreRequest' => app_path("Http/Requests/Store{$this->singular}Request.php"),
-            'UpdateRequest' => app_path("Http/Requests/Update{$this->singular}Request.php"),
+            'StoreRequest' => app_path("Http/Requests/{$this->singular}/Store{$this->singular}Request.php"),
+            'UpdateRequest' => app_path("Http/Requests/{$this->singular}/Update{$this->singular}Request.php"),
             'IndexView' => resource_path("views/{$smallFirstLetterNamespace}/{$this->snakePlural}/index.blade.php"),
             'CreateView' => resource_path("views/{$smallFirstLetterNamespace}/{$this->snakePlural}/create.blade.php"),
             'EditView' => resource_path("views/{$smallFirstLetterNamespace}/{$this->snakePlural}/edit.blade.php"),
@@ -84,10 +102,10 @@ class GenerateCrudCommand extends Command
 
         foreach ($files as $stubType => $filePath) {
             $stubContent = $this->getStubContent($stubType);
+            $this->filesystem->ensureDirectoryExists(dirname($filePath), 0755, true);
             $this->filesystem->put($filePath, $stubContent);
         }
     }
-
     protected function getStubContent($stubType)
     {
         $stubPath = __DIR__ . "/../Stubs/" . Str::snake($stubType) . ".stub";
