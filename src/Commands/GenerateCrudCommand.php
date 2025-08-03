@@ -139,8 +139,8 @@ class GenerateCrudCommand extends Command
 
     protected function addRoutes()
     {
-        $routeFile = base_path('routes/admin.php');
-        $namespace = $this->baseNamespace; // Assuming you have this property
+        $routeFile = base_path('routes/hook.php');
+        $namespace = $this->namespace;
         $controllerNamespace = "App\\Http\\Controllers\\{$namespace}\\{$this->singular}Controller";
         $repositoryInterface = "App\\Repositories\\Interfaces\\{$this->singular}RepositoryInterface";
         $repository = "App\\Repositories\\{$this->singular}Repository";
