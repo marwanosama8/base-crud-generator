@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use App\Models\{{singular}};
 
 class {{singular}}Repository extends BaseRepository implements {{singular}}RepositoryInterface
 {

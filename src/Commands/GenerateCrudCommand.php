@@ -72,14 +72,14 @@ class GenerateCrudCommand extends Command
             'Repository' => app_path("Repositories/{$this->singular}Repository.php"),
             'RepositoryInterface' => app_path("Repositories/Interfaces/{$this->singular}RepositoryInterface.php"),
             'Model' => app_path("Models/{$this->singular}.php"),
-            'Migration' => database_path("migrations/" . date('Y_m_d_His') . "_create_{$this->plural}_table.php"),
-            'StoreRequest' => app_path("Http/Requests/Store{$this->singular}Request.php"),
-            'UpdateRequest' => app_path("Http/Requests/Update{$this->singular}Request.php"),
-            'IndexView' => resource_path("views/{$smallFirstLetterNamespace}/{$this->plural}/index.blade.php"),
-            'CreateView' => resource_path("views/{$smallFirstLetterNamespace}/{$this->plural}/create.blade.php"),
-            'EditView' => resource_path("views/{$smallFirstLetterNamespace}/{$this->plural}/edit.blade.php"),
-            'ShowView' => resource_path("views/{$smallFirstLetterNamespace}/{$this->plural}/show.blade.php"),
-            'ArchiveView' => resource_path("views/{$smallFirstLetterNamespace}/{$this->plural}/archive.blade.php"),
+            'Migration' => database_path("migrations/" . date('Y_m_d_His') . "_create_{$this->snakePlural}_table.php"),
+            'StoreRequest' => app_path("Http/Requests/{$this->singular}/Store{$this->singular}Request.php"),
+            'UpdateRequest' => app_path("Http/Requests/{$this->singular}/Update{$this->singular}Request.php"),
+            'IndexView' => resource_path("views/{$smallFirstLetterNamespace}/{$this->snakePlural}/index.blade.php"),
+            'CreateView' => resource_path("views/{$smallFirstLetterNamespace}/{$this->snakePlural}/create.blade.php"),
+            'EditView' => resource_path("views/{$smallFirstLetterNamespace}/{$this->snakePlural}/edit.blade.php"),
+            'ShowView' => resource_path("views/{$smallFirstLetterNamespace}/{$this->snakePlural}/show.blade.php"),
+            'ArchiveView' => resource_path("views/{$smallFirstLetterNamespace}/{$this->snakePlural}/archive.blade.php"),
         ];
 
         foreach ($files as $stubType => $filePath) {
@@ -129,11 +129,13 @@ class GenerateCrudCommand extends Command
         $routes = <<<EOT
 
         // {$this->singular} Routes
-        Route::resource('{$this->snakePlural}', App\Http\Controllers\Admin\\{$this->singular}Controller::class)->except('show');
-        Route::get('{$this->snakePlural}-archive', [App\Http\Controllers\Admin\\{$this->singular}Controller::class, 'archive'])->name('{$this->snakePlural}.archive');
-        Route::post('{$this->snakePlural}-restore/{uuid}', [App\Http\Controllers\Admin\\{$this->singular}Controller::class, 'restore'])->name('{$this->snakePlural}.restore');
-        Route::delete('{$this->snakePlural}-force-delete/{uuid}', [App\Http\Controllers\Admin\\{$this->singular}Controller::class, 'forceDelete'])->name('{$this->snakePlural}.forceDelete');
-        Route::patch('{$this->snakePlural}-change-status/{id}', [App\Http\Controllers\Admin\\{$this->singular}Controller::class, 'changeActive'])->name('{$this->snakePlural}.change.active');
+        use App\Http\Controllers\{$this->namespace}\{$this->singular}Controller;
+
+        Route::resource('{$this->snakePlural}', {$this->singular}Controller::class)->except('show');
+        Route::get('{$this->snakePlural}-archive', [{$this->singular}Controller::class, 'archive'])->name('{$this->snakePlural}.archive');
+        Route::post('{$this->snakePlural}-restore/{uuid}', [{$this->singular}Controller::class, 'restore'])->name('{$this->snakePlural}.restore');
+        Route::delete('{$this->snakePlural}-force-delete/{uuid}', [{$this->singular}Controller::class, 'forceDelete'])->name('{$this->snakePlural}.forceDelete');
+        Route::patch('{$this->snakePlural}-change-status/{id}', [{$this->singular}Controller::class, 'changeActive'])->name('{$this->snakePlural}.change.active');
         EOT;
 
         $this->filesystem->append($routeFile, $routes);
