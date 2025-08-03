@@ -100,6 +100,7 @@ class GenerateCrudCommand extends Command
                 '{{snakePlural}}',
                 '{{model}}',
                 '{{variable}}',
+                '{{namespace}}',
                 '{{base_namespace_capital}}',
                 '{{base_namespace_small}}'
             ],
