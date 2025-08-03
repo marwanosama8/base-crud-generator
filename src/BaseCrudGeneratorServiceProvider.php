@@ -1,10 +1,10 @@
 <?php
 
-namespace Kabret\BaseCrudGenerator;
+namespace MarwanOsama\BaseCrudGenerator;
 
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Kabret\BaseCrudGenerator\Commands\GenerateCrudCommand;
+use MarwanOsama\BaseCrudGenerator\Commands\GenerateCrudCommand;
 
 class BaseCrudGeneratorServiceProvider extends PackageServiceProvider
 {

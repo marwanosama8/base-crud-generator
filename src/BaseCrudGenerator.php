@@ -1,5 +1,5 @@
 <?php
 
-namespace Kabret\BaseCrudGenerator;
+namespace MarwanOsama\BaseCrudGenerator;
 
 class BaseCrudGenerator {}

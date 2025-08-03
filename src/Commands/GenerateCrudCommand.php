@@ -1,6 +1,6 @@
 <?php
 
-namespace Kabret\BaseCrudGenerator\Commands;
+namespace MarwanOsama\BaseCrudGenerator\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;

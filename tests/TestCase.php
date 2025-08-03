@@ -1,10 +1,10 @@
 <?php
 
-namespace Kabret\BaseCrudGenerator\Tests;
+namespace MarwanOsama\BaseCrudGenerator\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Kabret\BaseCrudGenerator\BaseCrudGeneratorServiceProvider;
+use MarwanOsama\BaseCrudGenerator\BaseCrudGeneratorServiceProvider;
 
 class TestCase extends Orchestra
 {
@@ -13,7 +13,7 @@ class TestCase extends Orchestra
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'Kabret\\BaseCrudGenerator\\Database\\Factories\\'.class_basename($modelName).'Factory'
+            fn (string $modelName) => 'MarwanOsama\\BaseCrudGenerator\\Database\\Factories\\'.class_basename($modelName).'Factory'
         );
     }
 

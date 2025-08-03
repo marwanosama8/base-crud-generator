@@ -1,16 +1,16 @@
 <?php
 
-namespace Kabret\BaseCrudGenerator\Facades;
+namespace MarwanOsama\BaseCrudGenerator\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \Kabret\BaseCrudGenerator\BaseCrudGenerator
+ * @see \MarwanOsama\BaseCrudGenerator\BaseCrudGenerator
  */
 class BaseCrudGenerator extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
-        return \Kabret\BaseCrudGenerator\BaseCrudGenerator::class;
+        return \MarwanOsama\BaseCrudGenerator\BaseCrudGenerator::class;
     }
 }

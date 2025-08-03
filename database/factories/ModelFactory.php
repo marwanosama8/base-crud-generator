@@ -1,6 +1,6 @@
 <?php
 
-namespace Kabret\BaseCrudGenerator\Database\Factories;
+namespace MarwanOsama\BaseCrudGenerator\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
