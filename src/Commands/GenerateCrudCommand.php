@@ -139,33 +139,31 @@ class GenerateCrudCommand extends Command
 
     protected function addRoutes()
     {
-        $routeFile = base_path('routes/hook.php');
         $namespace = $this->namespace;
         $controllerNamespace = "App\\Http\\Controllers\\{$namespace}\\{$this->singular}Controller";
         $repositoryInterface = "App\\Repositories\\Interfaces\\{$this->singular}RepositoryInterface";
         $repository = "App\\Repositories\\{$this->singular}Repository";
 
-        if (!$this->filesystem->exists($routeFile)) {
-            $this->filesystem->put($routeFile, "<?php\n\nuse Illuminate\Support\Facades\Route;\nuse Illuminate\\Support\\Facades\\App;\n\n");
-        }
-
         $routes = <<<EOT
-
+        \n
         // {$this->singular} Routes
         use {$controllerNamespace};
         use {$repositoryInterface};
         use {$repository};
 
-        // $this->app->bind({$repositoryInterface}::class,{$repository}::class);
+        // Binding (uncomment to use):
+        // app()->bind({$repositoryInterface}::class, {$repository}::class);
 
         Route::resource('{$this->snakePlural}', {$this->singular}Controller::class)->except('show');
         Route::get('{$this->snakePlural}-archive', [{$this->singular}Controller::class, 'archive'])->name('{$this->snakePlural}.archive');
         Route::post('{$this->snakePlural}-restore/{uuid}', [{$this->singular}Controller::class, 'restore'])->name('{$this->snakePlural}.restore');
         Route::delete('{$this->snakePlural}-force-delete/{uuid}', [{$this->singular}Controller::class, 'forceDelete'])->name('{$this->snakePlural}.forceDelete');
-        Route::patch('{$this->snakePlural}-change-status/{id}', [{$this->singular}Controller::class, 'changeActive'])->name('{$this->snakePlural}.change.active');
+        Route::patch('{$this->snakePlural}-change-status/{id}', [{$this->singular}Controller::class, 'changeActive'])->name('{$this->snakePlural}.change.active');\n
         EOT;
 
-        $this->filesystem->append($routeFile, $routes);
+        $this->info("\nGenerated Routes:");
+        $this->line($routes);
+        $this->comment("\nCopy these routes to your routes file.");
     }
 
     protected function updateComposerAutoload()
