@@ -156,7 +156,7 @@ class GenerateCrudCommand extends Command
         use {$repositoryInterface};
         use {$repository};
 
-        $this->app->bind({$repositoryInterface}::class,{$repository}::class);
+        // $this->app->bind({$repositoryInterface}::class,{$repository}::class);
 
         Route::resource('{$this->snakePlural}', {$this->singular}Controller::class)->except('show');
         Route::get('{$this->snakePlural}-archive', [{$this->singular}Controller::class, 'archive'])->name('{$this->snakePlural}.archive');
