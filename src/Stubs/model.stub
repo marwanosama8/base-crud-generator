@@ -1,0 +1,125 @@
+<?php
+
+namespace App\Models;
+
+use Astrotomic\Translatable\Translatable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Models\Activity;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Model;
+
+class {{singular}} extends Model implements HasMedia
+{
+    use HasFactory, SoftDeletes, LogsActivity, HasRoles, InteractsWithMedia, Notifiable;
+
+    protected $fillable = [
+        'mobile',
+        'email',
+        'password',
+        'identity',
+        'is_active',
+        'country_id',
+        'nationality_id',
+        'address',
+        'is_force_delete',
+        'mobile_codes',
+        'first_name',
+        'second_name',
+        'third_name',
+        'last_name',
+        'full_name',
+    ];
+
+    protected $casts = [
+        'password' => 'hashed',
+    ];
+
+    protected $hidden = [
+        'password',
+    ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnlyDirty();
+    }
+
+    protected function password(): Attribute
+    {
+        return Attribute::make(
+            set: fn(string $value) => Hash::make($value),
+        );
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    public static function getPermissions()
+    {
+        return [
+            '{{variable}}.view' => ['index', 'show', 'changePassword'],
+            '{{variable}}.add' => ['create', 'store'],
+            '{{variable}}.edit' => ['edit', 'update', 'changeActive'],
+            '{{variable}}.delete' => ['destroy', 'forceDelete', 'restore', 'archive'],
+        ];
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $model->uuid = Str::uuid();
+        });
+
+        Activity::saving(function (Activity $activity) {
+            if (Auth::check()) {
+                $activity->causer_id = Auth::id();
+                $activity->causer_type = get_class(Auth::user());
+            }
+        });
+    }
+
+    public function country()
+    {
+        return $this->belongsTo(Country::class);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
+
+    public function latestOTPToken(): MorphOne
+    {
+        return $this->morphOne(AuthenticatableOtp::class, 'authenticatable')->latestOfMany();
+    }
+
+    public function OTPTokens(): MorphMany
+    {
+        return $this->morphMany(AuthenticatableOtp::class, 'authenticatable')->latest();
+    }
+
+    public function routeNotificationForSms($notification)
+    {
+        return '+18777804236';
+    }
+}

@@ -1,0 +1,215 @@
+@extends('components.layouts.{{base_namespace_small}}.master')
+@section('title')
+@lang('{{base_namespace_small}}.show_{{variable}}')
+@endsection
+@section('content')
+<div class="dashInner__container">
+    <div class="row px-2 px-md-4">
+        <!-- Start:: Header Section -->
+        <div class="nav-container">
+            <div class="nav-content">
+                <a href="{{ route('{{base_namespace_small}}.{{snakePlural}}.index') }}" class="action-button">
+                    <i class="fas fa-chevron-right back_button"></i>
+                </a>
+                <div class="nav-text">
+                    <div class="title">
+                        @lang('{{base_namespace_small}}.show_{{variable}}')
+                    </div>
+                    <div class="breadcrumb-container">
+                        <a href="{{ route('{{base_namespace_small}}.{{base_namespace_small}}') }}"
+                           class="breadcrumb-item breadcrumb-link"
+                        ></a>
+                        @lang('{{base_namespace_small}}.home')
+                        <i class="fas fa-chevron-right rotate_button"></i>
+                        <a href="{{ route('{{base_namespace_small}}.{{snakePlural}}.index') }}"
+                           class="breadcrumb-item breadcrumb-link-home"
+                        >@lang('{{base_namespace_small}}.{{snakePlural}}')</a>
+                        <i class="fas fa-chevron-right rotate_button"></i>
+                        <a class="breadcrumb-item breadcrumb-link"
+                        >
+                            @lang('{{base_namespace_small}}.show_{{variable}}')
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="actions_header actions_header_details d-none algin-item-end justify-content-end gap-1 me-3">
+                <img src="{{ asset('assets/images/homePage/pdf.svg') }}" alt="" srcset="">
+                <img src="{{ asset('assets/images/homePage/xlcs.svg') }}" alt="" srcset="">
+            </div>
+        </div>
+        <div class="white_block  mt-4">
+            <ul class="nav nav-tabs univ_tabs prov_tabs mbttom_50"
+                id="clientTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-bs-toggle="tab"
+                       data-bs-target="#tabN_1" type="button" role="tab"
+                       aria-controls="vision" aria-selected="true"
+                    > @lang('{{base_namespace_small}}.{{variable}}_details')
+                    </a>
+                </li>
+
+            </ul>
+            <div class="tab-content" id="allUNIV__tabs">
+                <div class="curr__wrapper tab-pane fade active show"
+                     role="tabpanel" id="tabN_1">
+                    <div class="p-1 border-bottom">
+                        <div class="row ticket-info">
+                            <div class="col-md-4 mb-3">
+                                <div
+                                    class="d-flex py-2 align-items-start mb-1">
+                                    <div class="label_ticket"
+                                         data-i18n="placeholders.ticket_number">
+                                        <span class="i18n-text">  @lang('{{base_namespace_small}}.first_name')</span>:
+                                    </div>
+                                    <div class="me-3 text_value_detalis">{{${{variable}}->first_name}}</div>
+                                </div>
+                                <div
+                                    class="d-flex py-2 align-items-start mb-1">
+                                    <div class="label_ticket"
+                                         data-i18n="placeholders.priority_level">
+                                        <span class="i18n-text">@lang('{{base_namespace_small}}.second_name')</span>:
+                                    </div>
+                                    <div class="me-3 text_value_detalis">{{${{variable}}->second_name}}</div>
+                                </div>
+                                <div
+                                    class="d-flex py-2 align-items-start mb-1">
+                                    <div class="label_ticket"
+                                         data-i18n="placeholders.priority_level">
+                                        <span class="i18n-text">@lang('{{base_namespace_small}}.third_name')</span>:
+                                    </div>
+                                    <div class="me-3 text_value_detalis">{{${{variable}}->third_name}}</div>
+                                </div>
+                                <div
+                                    class="d-flex py-2 align-items-start mb-1">
+                                    <div class="label_ticket"
+                                         data-i18n="placeholders.priority_level">
+                                        <span class="i18n-text">@lang('{{base_namespace_small}}.last_name')</span>:
+                                    </div>
+                                    <div class="me-3 text_value_detalis">{{${{variable}}->last_name}}</div>
+                                </div>
+
+                            </div>
+                            <div class="col-md-4">
+                                <div
+                                    class="d-flex py-2 align-items-start mb-1">
+                                    <div class="label_ticket"
+                                         data-i18n="placeholders.priority_level">
+                                        <span class="i18n-text">@lang('{{base_namespace_small}}.full_name')</span>:
+                                    </div>
+                                    <div class="me-3 text_value_detalis">{{${{variable}}->full_name}}</div>
+                                </div>
+                                <div
+                                    class="d-flex py-2 align-items-start mb-1">
+                                    <div class="label_ticket"
+                                         data-i18n="labels.address">
+                                        <span class="i18n-text">@lang('{{base_namespace_small}}.email')</span>:
+                                    </div>
+                                    <div class="me-3 text_value_detalis">
+                                        {{${{variable}}->email}}</div>
+                                </div>
+                                <div
+                                    class="d-flex py-2 align-items-start mb-1">
+                                    <div class="label_ticket"
+                                         data-i18n="placeholders.assign_to">
+                                        <span class="i18n-text">@lang('{{base_namespace_small}}.mobile')</span>:
+                                    </div>
+                                    <div class="me-3 text_value_detalis">
+                                        {{${{variable}}->mobile}}
+                                    </div>
+                                </div>
+                                <div
+                                    class="d-flex py-2 align-items-start mb-1">
+                                    <div class="label_ticket"
+                                         data-i18n="placeholders.assign_to">
+                                        <span class="i18n-text">@lang('{{base_namespace_small}}.identity')</span>:
+                                    </div>
+                                    <div class="me-3 text_value_detalis">
+                                        {{${{variable}}->identity}}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div
+                                    class="d-flex py-2 align-items-start mb-1">
+                                    <div class="label_ticket"
+                                         data-i18n="labels.Category">
+                                        <span class="i18n-text">@lang('{{base_namespace_small}}.role')</span>:
+                                    </div>
+                                    <div class="me-3 text_value_detalis">{{${{variable}}->getRoleNames()->first()}} </div>
+                                </div>
+                                <div
+                                    class="d-flex py-2 align-items-start mb-1">
+                                    <div class="label_ticket"
+                                         data-i18n="labels.status">
+                                        <span class="i18n-text">@lang('{{base_namespace_small}}.country')</span>:
+                                    </div>
+                                    <div class="me-3 text_value_detalis">{{${{variable}}->country?->name}}</div>
+
+                                </div>
+                                <div
+                                    class="d-flex py-2 align-items-start mb-1">
+                                    <div class="label_ticket"
+                                         data-i18n="labels.status">
+                                        <span class="i18n-text">@lang('{{base_namespace_small}}.nationality')</span>:
+                                    </div>
+                                    <div class="me-3 text_value_detalis">{{${{variable}}->country?->nationality}}</div>
+
+                                </div>
+                                <div class="d-flex py-2 align-items-start mb-1">
+                                    <div class="label_ticket">
+                                        @lang('{{base_namespace_small}}.status') <span class="i18n-text"></span>:
+                                    </div>
+                                    <div class="me-3 text_value_detalis">
+                                        @if(${{variable}}->is_active)
+                                        <span class="badge bg-success">@lang('{{base_namespace_small}}.active')</span>
+                                        @else
+                                        <span class="badge bg-danger">@lang('{{base_namespace_small}}.inactive')</span>
+                                        @endif
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    {{--                        <div class="p-1 border-bottom">--}}
+                        {{--                            <div class="label_ticket"--}}
+                                                             {{--                                 data-i18n="labels.description">--}}
+                            {{--                                <span class="i18n-text"></span>:--}}
+                            {{--                            </div>--}}
+                        {{--                            <p class="text_value_detalis mt-2"--}}
+                                                           {{--                               data-i18n="placeholders.description_content">--}}
+                            {{--                            </p>--}}
+                        {{--                        </div>--}}
+                    @if(${{variable}}->getFirstMediaUrl('image'))
+                    <div class="p-1">
+                        <div class="label_ticket" data-i18n="labels.attachments">
+                            <span class="i18n-text">@lang('{{base_namespace_small}}.flag')</span>:
+                        </div>
+                        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-0 mt-2" id="attachments">
+                            <div class="col">
+                                <div class="attachment-card">
+                                    <a href="{{ ${{variable}}->getFirstMediaUrl('image') }}" target="_blank">
+                                        <div class="ratio ratio-4x3">
+                                            <img src="{{ ${{variable}}->getFirstMediaUrl('image') ?? asset('assets/images/profile.png') }}"
+                                                 class="img-fluid object-fit-contain rounded"
+                                                 alt="مرفق 1">
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+@endsection
+
+
+
+
+

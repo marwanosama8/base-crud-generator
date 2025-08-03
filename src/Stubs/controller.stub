@@ -36,12 +36,21 @@ class {{singular}}Controller extends Controller
             return $this->repository->export($request, $perPageSessionKey);
         }
         $trashedCount = $this->repository->getTrashedCount();
-        $roles = Role::active()->get( );
+        $roles = Role::active()->get();
         ${{snakePlural}} = $this->repository->all($request, $perPageSessionKey);
         return view('{{base_namespace_small}}.{{snakePlural}}.index', get_defined_vars());
-
     }
 
+    public function store(Store{{singular}}Request $request)
+    {
+        ${{variable}} = $this->repository->add($request);
+        if (${{variable}}) {
+            return redirect()->route('{{base_namespace_small}}.{{snakePlural}}.index')
+                ->with('toast_success', __('{{base_namespace_small}}.created_successfully'));
+        }
+        return redirect()->back()
+            ->with('toast_error', __('{{base_namespace_small}}.something_went_wrong'));
+    }
     public function create()
     {
         $countries = $this->repository->getActiveScopedCountry();
@@ -49,27 +58,74 @@ class {{singular}}Controller extends Controller
         return view('{{base_namespace_small}}.{{snakePlural}}.create', get_defined_vars());
     }
 
-    public function archive()
+    public function edit({{singular}} ${{variable}})
     {
-        $deleted{{plural}} = $this->repository->getArchived();
-        return view('{{base_namespace_small}}.{{plural}}.archive', compact('deleted{{plural}}'));
+        $countries = $this->repository->getActiveScopedCountry();
+        $roles = $this->repository->getRole();
+        $selectedCountryId = ${{variable}}->country_id;
+        $selectedNationalityId = ${{variable}}->nationality_id;
+        return view('{{base_namespace_small}}.{{snakePlural}}.edit', get_defined_vars());
+    }
+
+    public function update(Update{{singular}}Request $request, string $uuid)
+    {
+        $result = $this->repository->update($uuid, $request);
+        if ($result) {
+            return redirect()->route('{{base_namespace_small}}.{{snakePlural}}.index')
+                ->with('toast_success', __('{{base_namespace_small}}.updated_successfully'));
+        }
+        return redirect()->back()
+            ->with('toast_error', __('{{base_namespace_small}}.something_went_wrong'));
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $uuid)
+    {
+        $this->repository->delete($uuid);
+        return redirect()->back()
+            ->with('toast_success', __('{{base_namespace_small}}.archived_successfully'));
+    }
+
+    public function archive(Request $request)
+    {
+
+        $perPageSessionKey = 'per_page_{{snakePlural}}';
+        $archived{{plural}} = $this->repository->getArchived($request, $perPageSessionKey);
+        return view('{{base_namespace_small}}.{{snakePlural}}.archived', get_defined_vars());
     }
 
     public function restore($uuid)
     {
         $this->repository->restore($uuid);
-        return redirect()->route('{{snakePlural}}.index');
+        return redirect()->route('{{base_namespace_small}}.{{snakePlural}}.archive')
+            ->with('toast_success', __('{{base_namespace_small}}.restored_successfully'));
     }
 
     public function forceDelete($uuid)
     {
-        $this->repository->forceDelete($uuid);
-        return redirect()->route('{{snakePlural}}.archive');
+        $result = $this->repository->forceDelete($uuid);
+        if ($result) {
+            return redirect()->route('{{base_namespace_small}}.{{snakePlural}}.archive')
+                ->with('toast_success', lang('{{base_namespace_small}}.deleted_successfully'));
+        }
+        return redirect()->route('{{base_namespace_small}}.{{snakePlural}}.archive')
+            ->with('toast_error', __('{{base_namespace_small}}.something_went_wrong'));
+
     }
 
-    public function changeActive($id)
+    public function changeActive(Request $request, $id)
     {
-        $this->repository->changeStatus($id);
-        return response()->json(['success' => true]);
+        ${{variable}} = {{singular}}::findOrFail($id);
+        if ($request->status == 'active') {
+            ${{variable}}->is_active = true;
+        } else {
+            ${{variable}}->is_active = false;
+        }
+        ${{variable}}->save();
+
+        return redirect()->back()->with('toast_success', __('{{base_namespace_small}}.updated_successfully'));
+
     }
 }

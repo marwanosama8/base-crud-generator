@@ -1,0 +1,162 @@
+<?php
+
+namespace App\Http\Requests\{{singular}};
+
+use App\Http\Requests\Role\RequestHelper;
+use App\Models\{{singular}};
+use App\Rules\EnglishAlphaNumeric;
+use App\Rules\MobileWithoutCode;
+use App\Rules\NoEmoji;
+use App\Rules\UniqueInternationalPhone;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\Validator;
+use Illuminate\Validation\Rule;
+
+class Update{{singular}}Request extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'address' => $this->normalizeTextarea($this->address),
+        ]);
+    }
+
+    private function normalizeTextarea($value)
+    {
+
+        return is_string($value) ? str_replace(["\r\n", "\r"], "\n", $value) : $value;
+    }
+
+    public function rules(): array
+    {
+        $uuid = $this->route('admin');
+        $admin = {{singular}}::where('uuid', $uuid)->first();
+        return [
+            'image' => 'nullable|file|mimes:jpeg,png,jpg|max:5120',
+            'mobile' => [
+                'required',
+                'min:2',
+//                'regex:/^[0-9]+$/',
+                'max:20',
+                Rule::unique('{{snakePlural}}', 'mobile')->ignore($admin->id),
+//                new UniqueInternationalPhone($this->input('mobile_codes'), '{{snakePlural}}', $admin->id),
+            ],
+
+//            'mobile'=> 'required|unique:{{snakePlural}},mobile,' . $admin->id,
+            'identity' => [
+                'nullable',
+                'max:20',
+                new EnglishAlphaNumeric(),
+            ],
+            'email' => [
+                'required',
+                'email:rfc',
+                'max:100',
+                Rule::unique('{{snakePlural}}', 'email')->ignore($admin->id),
+                'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i'
+            ],
+            'password' => [
+                'nullable',
+                'confirmed',
+                Password::min(8)
+                    ->max(20)
+                    ->mixedCase()
+                    ->numbers()
+                    ->letters()
+                    ->uncompromised()
+            ],
+            'address' => 'nullable|max:100',
+            'remove_image' => 'required',
+            'role' => 'nullable',
+            'nationality_id' => 'nullable',
+            'country_id' => 'nullable|exists:countries,id',
+            'first_name' => ['required', 'string', 'min:2', 'max:30', new NoEmoji()],
+            'second_name' => ['nullable', 'string', 'min:2', 'max:30', new NoEmoji()],
+            'third_name' => ['nullable', 'string', 'min:2', 'max:30', new NoEmoji()],
+            'last_name' => ['required', 'string', 'min:2', 'max:30', new NoEmoji()],
+            'full_name' => ['required', 'string', 'min:2', 'max:30', new NoEmoji()],
+        ];
+    }
+    public function messages(): array
+    {
+        return [
+            'image.file' => __('dashboard.image.file'),
+            'image.mimes' => __('dashboard.image.mimes'),
+            'image.max' => __('dashboard.image.max'),
+
+            'mobile.required' => __('dashboard.mobile.required'),
+            'mobile.min' => __('dashboard.mobile.min'),
+            'mobile.max' => __('dashboard.mobile.max'),
+            'mobile.unique' => __('dashboard.mobile.unique'),
+
+            'identity.max' => __('dashboard.identity.max'),
+
+            'email.required' => __('dashboard.email.required'),
+            'email.email' => __('dashboard.email.email'),
+            'email.max' => __('dashboard.email.max'),
+            'email.unique' => __('dashboard.email.unique'),
+            'email.regex' => __('dashboard.email.regex'),
+
+            'password.confirmed' => __('dashboard.password.confirmed'),
+            'password.min' => __('dashboard.password.min'),
+            'password.max' => __('dashboard.password.max'),
+            'password.mixed' => __('dashboard.password.mixed'),
+            'password.numbers' => __('dashboard.password.numbers'),
+            'password.letters' => __('dashboard.password.letters'),
+            'password.uncompromised' => __('dashboard.password.uncompromised'),
+
+            'address.max' => __('dashboard.address.max'),
+
+            'remove_image.required' => __('dashboard.remove_image.required'),
+
+            'country_id.exists' => __('dashboard.country_id.exists'),
+
+            'first_name.required' => __('dashboard.first_name.required'),
+            'first_name.string' => __('dashboard.first_name.string'),
+            'first_name.min' => __('dashboard.first_name.min'),
+            'first_name.max' => __('dashboard.first_name.max'),
+
+            'second_name.string' => __('dashboard.second_name.string'),
+            'second_name.min' => __('dashboard.second_name.min'),
+            'second_name.max' => __('dashboard.second_name.max'),
+
+            'third_name.string' => __('dashboard.third_name.string'),
+            'third_name.min' => __('dashboard.third_name.min'),
+            'third_name.max' => __('dashboard.third_name.max'),
+
+            'last_name.required' => __('dashboard.last_name.required'),
+            'last_name.string' => __('dashboard.last_name.string'),
+            'last_name.min' => __('dashboard.last_name.min'),
+            'last_name.max' => __('dashboard.last_name.max'),
+
+            'full_name.required' => __('dashboard.full_name.required'),
+            'full_name.string' => __('dashboard.full_name.string'),
+            'full_name.min' => __('dashboard.full_name.min'),
+            'full_name.max' => __('dashboard.full_name.max'),
+        ];
+    }
+
+
+    protected function failedValidation(Validator|\Illuminate\Contracts\Validation\Validator $validator)
+    {
+        $errorsHtml = collect($validator->errors()->all())
+            ->map(fn($error) => "<div class='error-line'>{$error}</div>")
+            ->implode('');
+
+        session()->flash('toast_error', $errorsHtml);
+
+        throw new HttpResponseException(
+            redirect()->back()
+                ->withInput()
+        );
+    }
+}

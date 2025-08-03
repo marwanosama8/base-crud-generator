@@ -1,0 +1,325 @@
+@php use Illuminate\Support\Str; @endphp
+@extends('components.layouts.{{base_namespace_small}}.master')
+@section('title')
+@lang('{{base_namespace_small}}.{{snakePlural}}')
+@endsection
+@section('style')
+<style>
+    form-select form-select-sm {
+        border-radius: 25%;
+        width: 75px;
+    }
+</style>
+@endsection
+@section('content')
+<div class="dashInner__container">
+    <!-- Start:: Header Section -->
+    <div class="nav-container">
+        <div class="nav-content">
+            <a href="{{ route('{{base_namespace_small}}.{{base_namespace_small}}') }}" class="action-button">
+                <i class="fas fa-chevron-right back_button"></i>
+            </a>
+            <div class="nav-text">
+                <div class="title">
+                    @lang('{{base_namespace_small}}.{{snakePlural}}')
+                </div>
+                <div class="breadcrumb-container">
+                    <a href="{{ route('{{base_namespace_small}}.{{base_namespace_small}}') }}"
+                       class="breadcrumb-item breadcrumb-link-home"
+                    >@lang('{{base_namespace_small}}.home')</a>
+                    <i class="fas fa-chevron-right rotate_button"></i>
+                    <a href="#"
+                       class="breadcrumb-item breadcrumb-link"
+                    >@lang('{{base_namespace_small}}.{{snakePlural}}')</a>
+                    {{--                        <i class="fas fa-chevron-right icon-rotate"></i>--}}
+                    {{--                        <span class="breadcrumb-item breadcrumb-current"--}}
+                                                      {{--                              data-i18n="breadcrumb.allClients">--}}
+                        {{--                  </span>--}}
+                </div>
+            </div>
+        </div>
+        <div
+            class="actions_header d-flex algin-item-end justify-content-end gap-1 me-3">
+            <div style="display: flex; align-items: center; gap: 4px; padding: 4px;">
+                <form action="{{ route('{{base_namespace_small}}.{{snakePlural}}.index') }}" method="get" onsubmit="showSpinner(this)" style="margin: 0;">
+                    <input type="hidden" name="export" value="pdf">
+                    <button type="submit" style="background: none; border: none; cursor: pointer; padding: 0; position: relative;">
+                        <img src="{{ asset('assets/images/homePage/pdf.svg') }}" alt="PDF Export">
+                        <div class="spinner" style="display: none; position: absolute; top: -5px; right: -5px;"></div>
+                    </button>
+                </form>
+                <form action="{{ route('{{base_namespace_small}}.{{snakePlural}}.index') }}" method="get" style="margin: 0;">
+                    <input type="hidden" name="export" value="excel">
+                    <button type="submit" style="background: none; border: none; cursor: pointer; padding: 0;">
+                        <img src="{{ asset('assets/images/homePage/xlcs.svg') }}" alt="Excel Export">
+                    </button>
+                </form>
+            </div>
+            @if((Auth::guard('{{variable}}')->check()&& Auth::guard('{{variable}}')->user()->can('{{variable}}.add')))
+            <form action="{{route('{{base_namespace_small}}.{{snakePlural}}.create')}}" method="get">
+                <button class="add-btn" type="submit"
+                >@lang('{{base_namespace_small}}.add_{{variable}}')
+                    <i class="fas fa-plus"></i>
+                    <span class="i18n-text"></span>
+                </button>
+            </form>
+            @endif
+            @if((Auth::guard('{{variable}}')->check()&& Auth::guard('{{variable}}')->user()->can('{{variable}}.delete')))
+            <form action="{{route('{{base_namespace_small}}.{{snakePlural}}.archive')}}" method="get">
+                <button class="archive-btn" type="submit"
+                >@lang('{{base_namespace_small}}.archived_{{snakePlural}}') ({{$trashedCount}})
+                    <i class="fas fa-archive"></i>
+                    <span class="i18n-text"></span>
+                </button>
+            </form>
+            @endif
+        </div>
+    </div>
+    <!-- End:: Header Section -->
+
+    <!-- Tables Row -->
+    <div class="row">
+        <div class="col-12 col-lg-12 mt-2">
+            <div class="white_block mt-3 border-0 rounded-3 ">
+                <!--Start:: Section Filter -->
+                <div class="filter_section px-1 px-md-4">
+                    <form action="{{ route('{{base_namespace_small}}.{{snakePlural}}.index') }}" method="GET">
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <div style="flex: 1 1 320px; max-width: 420px; min-width: 220px;">
+                                <div class="input-group custom-input-group">
+                                    <input type="text"
+                                           name="search"
+                                           placeholder="@lang('{{base_namespace_small}}.search')"
+                                           class="form-control form-control-sm"
+                                           maxlength="50"
+                                           value="{{ request('search') }}"
+                                           style="height: 41px;">
+                                    <button class="btn btn-primary btn-sm" type="submit" style="height: 41px;">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div style="width: 160px;">
+                                <select name="status"
+                                        class="form-control form-select form-control-sm"
+                                        style="height: 41px;"
+                                        onchange="this.form.submit()">
+                                    <option disabled hidden {{ request('status') === null ? 'selected' : '' }}>
+                                    @lang('{{base_namespace_small}}.status')
+                                    </option>
+                                    <option value="all" {{ request('status') === 'all' ? 'selected' : '' }}>
+                                    @lang('{{base_namespace_small}}.all')
+                                    </option>
+                                    @foreach (\App\Enums\StatusEnum::cases() as $status)
+                                    <option value="{{ $status->value }}" {{ request('status') == $status->value ? 'selected' : '' }}>
+                                    {{ $status->label() }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <a href="{{ route('{{base_namespace_small}}.{{snakePlural}}.index') }}"
+                               class="btn btn-outline-secondary d-flex align-items-center justify-content-center"
+                               style="height: 41px; width: 41px; border: 1px solid #0000001A;">
+                                <i class="fas fa-undo"></i>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+
+                <!--End:: Section Filter -->
+
+                <!-- Start:: Table -->
+                <div class=" mt-5 px-1 px-md-4" id="clients">
+                    <div class="table-responsive">
+                        <div class="shared_table_page">
+                            <table class="table table-unified">
+                                <thead class="table-light">
+                                <tr>
+                                    <th class="text-center"
+                                    >#</th>
+                                    <th class="text-center"
+                                        data-i18n="table.nameClient">
+                                        @lang('{{base_namespace_small}}.name')
+                                    </th>
+                                    <th class="text-center">
+                                        @lang('{{base_namespace_small}}.email')
+                                    </th>
+                                    <th class="text-center">
+                                        @lang('{{base_namespace_small}}.mobile')
+                                    </th>
+                                    <th class="text-center">
+                                        @lang('{{base_namespace_small}}.role')
+                                    </th>
+                                    @if((Auth::guard('{{variable}}')->check()&& Auth::guard('{{variable}}')->user()->can('{{variable}}.edit')))
+
+                                    <th class="text-center">
+                                        @lang('{{base_namespace_small}}.status')
+                                    </th>
+                                    @endif
+                                    <th class="text-center"
+                                    >@lang('{{base_namespace_small}}.actions')</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @if(${{snakePlural}}->isNotEmpty())
+                                @foreach(${{snakePlural}} as $key => ${{variable}})
+                                <tr>
+                                    <td class="text-center align-middle">{{ ${{snakePlural}}->firstItem() + $key }}</td>
+                                    <td class="text-center align-middle">{{ Str::limit(${{variable}}->first_name, 15) }}</td>
+                                    <td class="text-center align-middle">{{ Str::limit(${{variable}}->email, 25) }}</td>
+                                    <td class="text-center align-middle">{{ Str::limit(${{variable}}->mobile, 25) }}</td>
+                                    <td class="text-center align-middle">{{ Str::limit(${{variable}}->getRoleNames()->first(), 25) }}</td>
+                                    @if((Auth::guard('{{variable}}')->check()&& Auth::guard('{{variable}}')->user()->can('{{variable}}.edit')))
+
+                                    <td class="text-center align-middle">
+                                        <form action="{{ route('{{base_namespace_small}}.{{snakePlural}}.change.active', ${{variable}}->id) }}" method="POST">
+                                            @csrf
+                                            @method('PATCH')
+                                            <select name="status"
+                                                    class="form-select form-select-sm status-ddl {{ ${{variable}}->is_active ? 'completed' : 'denied' }}"
+                                                    aria-label="Status select"
+                                                    onchange="this.form.submit()">
+                                                <option value="active" {{ ${{variable}}->is_active ? 'selected' : '' }}>@lang('{{base_namespace_small}}.active')</option>
+                                                <option value="inactive" {{ !${{variable}}->is_active ? 'selected' : '' }}>@lang('{{base_namespace_small}}.inactive')</option>
+                                            </select>
+                                        </form>
+                                    </td>
+                                    @endif
+                                    {{--                                        <td class="text-center">المعادي</td>--}}
+                                    {{--                                        <td class="text-center">مهندسين</td>--}}
+                                    <td>
+                                        <div class="d-flex justify-content-center">
+                                            @if((Auth::guard('{{variable}}')->check()&& Auth::guard('{{variable}}')->user()->can('{{variable}}.view')))
+                                            <a href="{{route('{{base_namespace_small}}.{{snakePlural}}.show', ${{variable}}->uuid)}}" class="btn btn-icon">
+                                                <img src="{{ asset('assets/images/icons/eye.svg') }}" alt="View" width="20" height="20">
+                                            </a>
+                                            @endif
+                                            @if((Auth::guard('{{variable}}')->check()&& Auth::guard('{{variable}}')->user()->can('{{variable}}.edit')))
+                                            <a href="{{route('{{base_namespace_small}}.{{snakePlural}}.edit', ${{variable}}->uuid)}}" class="btn btn-icon">
+                                                <img src="{{ asset('assets/images/icons/pencilsimple.svg') }}" alt="Edit" width="20" height="20">
+                                            </a>
+                                            @endif
+                                            @if((Auth::guard('{{variable}}')->check()&& Auth::guard('{{variable}}')->user()->can('{{variable}}.delete')))
+                                            <a href="#" class="btn btn-icon"
+                                               data-bs-toggle="modal"
+                                               data-bs-target="#deleteConfirmation_{{ ${{variable}}->uuid }}">
+                                                <img src="{{ asset('assets/images/icons/trash.svg') }}" alt="Delete" width="20" height="20">
+                                            </a>
+                                            @endif
+                                        </div>
+
+                                        {{--start delete form --}}
+                                        <div class="modal fade" id="deleteConfirmation_{{ ${{variable}}->uuid }}"
+                                             tabindex="-1"
+                                             aria-labelledby="deleteConfirmationLabel_{{ ${{variable}}->uuid }}"
+                                             aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content delete-dialog">
+                                                    <div
+                                                        class="modal-body text-center d-flex flex-column align-items-center">
+                                                        <!-- First row: Icon -->
+                                                        <div class="warning-icon mb-3">
+                                                            <img
+                                                                src="{{ asset('assets/images/icons/alert-circle.svg') }}"
+                                                                alt="Delete" width="40" height="40">
+                                                        </div>
+
+                                                        <!-- Second row: Title -->
+                                                        <h5 class="modal-title mb-2"
+                                                            id="deleteConfirmationLabel_{{ ${{variable}}->uuid }}">
+                                                            @lang('{{base_namespace_small}}.delete')
+                                                        </h5>
+
+                                                        <!-- Third row: Content -->
+                                                        <p class="modal-text mb-4">@lang('{{base_namespace_small}}.are_you_sure_to_delete_this_{{variable}}')</p>
+
+                                                        <!-- Fourth row: Buttons in one row -->
+                                                        <div
+                                                            class="d-flex justify-content-center gap-3 w-100">
+                                                            <form
+                                                                action="{{ route('{{base_namespace_small}}.{{snakePlural}}.destroy', ${{variable}}->uuid) }}"
+                                                                method="POST" id="deleteForm">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit"
+                                                                        class="btn btn-delete">@lang('{{base_namespace_small}}.agree')</button>
+                                                            </form>
+                                                            <button type="button" class="btn btn-cancel"
+                                                                    data-bs-dismiss="modal">
+                                                                @lang('{{base_namespace_small}}.cancel')
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {{--end delete form --}}                                                       </td>
+
+                                </tr>
+                                @endforeach
+                                @else
+                                <tr>
+                                    <td colspan="7"
+                                        class="text-center">@lang('{{base_namespace_small}}.no_matching_results')</td>
+                                </tr>
+                                @endif
+                                </tbody>
+                            </table>
+                            <!-- Pagination -->
+                            <div
+                                class="navigation p-2">
+                                {{ ${{snakePlural}}->links('vendor.pagination.bootstrap-5', ['perPageSessionKey' => $perPageSessionKey]) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get all delete forms on the page
+        const deleteForms = document.querySelectorAll('#deleteForm');
+
+        deleteForms.forEach(form => {
+            let isSubmitting = false;
+
+            form.addEventListener('submit', function(e) {
+                if (isSubmitting) {
+                    e.preventDefault();
+                    return;
+                }
+
+                isSubmitting = true;
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const cancelBtn = form.closest('.modal-footer').querySelector('.btn-cancel');
+
+                // Disable and update submit button
+                submitBtn.disabled = true;
+                submitBtn.classList.add('disabled');
+                // submitBtn.innerHTML = 'Processing...';
+
+                // Handle cancel button to reset form state
+                if (cancelBtn) {
+                    const originalText = submitBtn.innerHTML;
+                    cancelBtn.addEventListener('click', function() {
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('disabled');
+                        submitBtn.innerHTML = originalText;
+                        isSubmitting = false;
+                    });
+                }
+            });
+        });
+    });
+</script>
+
+@endsection
+

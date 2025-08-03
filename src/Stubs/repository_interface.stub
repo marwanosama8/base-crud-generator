@@ -1,0 +1,22 @@
+<?php
+
+namespace App\Repositories\Interfaces;
+
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Request;
+
+interface {{singular}}RepositoryInterface
+{
+    public function all(Request $request, string $sessionKey, $isExport = false);
+    public function getRole(): ?Collection;
+    public function add($request): ?bool;
+    public function delete(string $uuid): ?bool;
+    public function update(string $uuid, $request): ?bool;
+    public function forceDelete(string $uuid): ?bool;
+    public function getTrashedCount(): int;
+    public function getArchived(Request $request, string $sessionKey): ?LengthAwarePaginator;
+    public function getCountry(): ?Collection;
+    public function getActiveScopedCountry(): ?Collection;
+    public function changeActive($id, bool $status);
+}

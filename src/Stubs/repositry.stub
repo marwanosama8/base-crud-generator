@@ -1,0 +1,212 @@
+<?php
+
+namespace App\Repositories;
+
+use App\Models\Admin;
+use App\Models\Country;
+use App\Models\Role;
+use App\Repositories\Concerns\PaginationPerPage;
+use App\Repositories\Interfaces\AdminRepositoryInterface;
+use App\Services\ExportExcelService;
+use App\Services\ExportPDFService;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+
+class {{singular}}Repository extends BaseRepository implements {{singular}}RepositoryInterface
+{
+    use PaginationPerPage;
+    public function __construct(protected {{singular}} ${{variable}})
+    {
+        parent::__construct(${{variable}});
+    }
+
+    public function all(Request $request, string $sessionKey, $isExport = false)
+    {
+        $perPage = $this->getPerPage($request, $sessionKey);
+
+        $query = $this->{{variable}}->withoutTrashed();
+
+            $query->whereDoesntHave('roles', function ($q) {
+                $q->where('name', 'super_admin');
+            });
+            $query->where('id', '!=', auth()->id());
+
+            if ($request->filled('search')) {
+                $query->where(function ($q) use ($request) {
+                    $q->orWhere('first_name', 'like', '%' . $request->search . '%');
+                    $q->orWhere('email', 'like', '%' . $request->search . '%');
+                    $q->orWhere('mobile', 'like', '%' . $request->search . '%');
+                    $q->orWhereHas('roles', function ($roleQuery) use ($request) {
+                        $roleQuery->where('name', 'like', '%' . $request->search . '%');
+                    });
+                });
+            }
+
+            if ($request->filled('status')) {
+                if($request->status == 'active'){
+                    $query->where('is_active', true);
+                }elseif($request->status == 'inactive'){
+                    $query->where('is_active', false);
+                }
+            }
+
+            if($isExport){
+                return $query->get();
+            }
+
+            return $query->paginate($perPage)->withQueryString();
+        }
+
+    public function export($request, string $sessionKey)
+    {
+        $data = $this->all($request, $sessionKey, true);
+
+        if ($request->filled('export') && in_array($request->export, ['excel', 'pdf'])) {
+            if ($request->export === 'excel') {
+                $exportExcel = new ExportExcelService('{{snakePlural}}', $data, __('{{base_namespace_small}}.{{snakePlural}}'));
+                $fileAbsolutePath = $exportExcel->export();
+                $originalFileName = $exportExcel->fileName . '.' . $exportExcel->extension;
+            } else {
+                $exportPdf = new ExportPDFService('{{snakePlural}}', $data, __('{{base_namespace_small}}.{{snakePlural}}'));
+                $fileAbsolutePath = $exportPdf->export($request);
+                $originalFileName = $exportPdf->fileName . '.' . $exportPdf->extension;
+            }
+
+            if (!file_exists($fileAbsolutePath)) {
+                Log::error("Download file not found: " . $fileAbsolutePath);
+                return redirect()->back()->with('error', __('{{base_namespace_small}}.export_file_not_found'));
+            }
+
+            return response()->download($fileAbsolutePath, $originalFileName);
+        }
+
+        abort(400, 'Invalid export request');
+    }
+
+    public function getRole(): ?Collection
+    {
+        return Role::where('guard_name', '{{base_namespace_small}}')
+            ->where('is_active', 1)
+            ->where('name', '!=', 'super_admin')
+            ->get();
+    }
+
+    public function getCountry(): ?Collection
+    {
+        return Country::withoutTrashed()->get();
+    }
+
+    public function getActiveScopedCountry(): ?Collection
+    {
+        return Country::withoutTrashed()->active()->get();
+    }
+
+    public function add($request): ?bool
+    {
+        DB::beginTransaction();
+        try {
+            $data = $request->validated();
+            unset($data['image']);
+            ${{variable}} = $this->{{variable}}->create($data);
+
+                $this->addImage($request, ${{variable}}, 'image');
+                ${{variable}}->assignRole($data['role']);
+
+                DB::commit();
+                return (bool)${{variable}};
+            } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function delete(string $uuid): ?bool
+    {
+        return $this->find($uuid)->delete();
+    }
+
+    public function getTrashedCount(): int
+    {
+        return $this->{{variable}}->onlyTrashed()->where('is_force_delete', false)->count();
+    }
+
+    public function getArchived(Request $request, string $sessionKey): ?LengthAwarePaginator
+    {
+        $perPage = $this->getPerPage($request, $sessionKey);
+
+        $query = $this->{{variable}}->onlyTrashed()->where('is_force_delete', false);
+            if ($request->filled('search')) {
+                $query->where(function ($q) use ($request) {
+                    $q->orWhere('first_name', 'like', '%' . $request->search . '%');
+                    $q->orWhere('email', 'like', '%' . $request->search . '%');
+                    $q->orWhere('mobile', 'like', '%' . $request->search . '%');
+                    $q->orWhereHas('roles', function ($roleQuery) use ($request) {
+                        $roleQuery->where('name', 'like', '%' . $request->search . '%');
+                    });
+                });
+            }
+
+        return $query->paginate($perPage)->withQueryString();
+    }
+
+    public function forceDelete(string $uuid): ?bool
+    {
+        DB::beginTransaction();
+        try {
+            ${{variable}} = $this->findOnlyTrashed($uuid);
+                $this->deleteMedia(${{variable}}, 'image');
+                ${{variable}}->syncRoles([]);
+                $result = ${{variable}}->update([
+                'mobile' => generateTimestampCode() . '-' . ${{variable}}->mobile,
+                    'identity' => generateTimestampCode() . '-' . ${{variable}}->identity,
+                    'email' => generateTimestampCode() . '-' . ${{variable}}->email,
+                    'is_force_delete' => true,
+                ]);
+                DB::commit();
+                return (bool)$result;
+            } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function update(string $uuid, $request): ?bool
+    {
+        DB::beginTransaction();
+        try {
+            $data = $request->validated();
+
+            if (is_null($data['password'])) {
+                unset($data['password']);
+            }
+
+            unset($data['image'], $data['confirm_password']);
+
+            ${{variable}} = tap($this->find($uuid))?->update($data);
+
+                $this->updateImage($request, ${{variable}}, 'image');
+                ${{variable}}->syncRoles($data['role'] ?? []);
+
+                if ($request->input('remove_image') == '1') {
+                    $this->deleteMedia(${{variable}}, 'image');
+                }
+
+                DB::commit();
+                return (bool)${{variable}};
+            } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+}
+
+    public function changeActive($id, bool $status)
+    {
+        ${{variable}} = $this->{{variable}}::findOrFail($id);
+        ${{variable}}->update(['is_active' => $status]);
+        return ${{variable}};
+    }
+}

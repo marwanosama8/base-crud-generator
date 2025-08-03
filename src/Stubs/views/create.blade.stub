@@ -1,0 +1,586 @@
+@extends('components.layouts.{{base_namespace_small}}.master')
+@section('title')
+@lang('{{base_namespace_small}}.add_{{variable}}')
+@endsection
+
+@section('content')
+<div class="dashInner__container ">
+    <div class="row px-2 px-md-4">
+        <!-- Start:: Header Section -->
+        <div class="nav-container">
+            <div class="nav-content">
+                <a href="{{ route('{{base_namespace_small}}.{{snakePlural}}.index') }}" class="action-button">
+                    <i class="fas fa-chevron-right back_button"></i>
+                </a>
+                <div class="nav-text">
+                    <div class="title">
+                        @lang('{{base_namespace_small}}.add_{{variable}}')
+                    </div>
+                    <div class="breadcrumb-container">
+                        <a href="{{ route('{{base_namespace_small}}.{{base_namespace_small}}') }}"
+                           class="breadcrumb-item breadcrumb-link"
+                        ></a>
+                        @lang('{{base_namespace_small}}.home')
+                        <i class="fas fa-chevron-right rotate_button"></i>
+                        <a href="{{ route('{{base_namespace_small}}.{{snakePlural}}.index') }}"
+                           class="breadcrumb-item breadcrumb-link-home"
+                        >@lang('{{base_namespace_small}}.{{snakePlural}}')</a>
+                        <i class="fas fa-chevron-right rotate_button"></i>
+                        <a class="breadcrumb-item breadcrumb-link"
+                        >
+                            @lang('{{base_namespace_small}}.add_{{variable}}')
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End:: Header Section -->
+
+        <div class="white_block  mt-5">
+            <form class="row" action="{{ route('{{base_namespace_small}}.{{snakePlural}}.store') }}" method="POST"
+                  enctype="multipart/form-data" data-validate id="{{variable}}CreateForm">
+                @csrf
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label"
+                           data-i18n="labels.client_name">@lang('{{base_namespace_small}}.first_name')</label>
+                    <input type="text"
+                           name="first_name"
+                           value="{{old('first_name')}}"
+                           placeholder="@lang('{{base_namespace_small}}.first_name')"
+                           class="form-control form-control-lg"
+                           maxlength="30"
+                           required
+                           data-error-required="{{ __('{{base_namespace_small}}.first_name_required') }}"
+                           data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
+                           data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
+                           minlength="2"
+                    >
+                    <div class="text-danger small mt-1">
+                        @error('first_name')
+                        {{ $message }}
+                        @enderror
+                    </div>
+
+                </div>
+                <!--  National Field -->
+
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label"
+                           data-i18n="labels.client_name">@lang('{{base_namespace_small}}.second_name')</label>
+                    <input type="text"
+                           name="second_name"
+                           value="{{old('second_name')}}"
+                           placeholder="@lang('{{base_namespace_small}}.second_name')"
+                           class="form-control form-control-lg"
+                           maxlength="30"
+                           minlength="2"
+                           data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
+                           data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
+                    >
+                    <div class="text-danger small mt-1">
+                        @error('second_name')
+                        {{ $message }}
+                        @enderror
+                    </div>
+
+                </div>
+
+
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label"
+                           data-i18n="labels.client_name">@lang('{{base_namespace_small}}.third_name')</label>
+                    <input type="text"
+                           name="third_name"
+                           value="{{old('third_name')}}"
+                           placeholder="@lang('{{base_namespace_small}}.third_name')"
+                           class="form-control form-control-lg"
+                           data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
+                           data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
+                           maxlength="30"
+                           minlength="2"
+                    >
+                    <div class="text-danger small mt-1">
+                        @error('third_name')
+                        {{ $message }}
+                        @enderror
+                    </div>
+
+                </div>
+
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label"
+                    >@lang('{{base_namespace_small}}.last_name')</label>
+                    <input type="text"
+                           name="last_name"
+                           required
+                           value="{{old('last_name')}}"
+                           placeholder="@lang('{{base_namespace_small}}.last_name')"
+                           class="form-control form-control-lg"
+                           data-error-required="{{ __('{{base_namespace_small}}.last_name_required') }}"
+                           data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
+                           data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
+                           maxlength="30"
+                           min="2"
+                    >
+                    <div class="text-danger small mt-1">
+                        @error('last_name')
+                        {{ $message }}
+                        @enderror
+                    </div>
+
+                </div>
+                <!--  National Field -->
+
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label"
+                    >@lang('{{base_namespace_small}}.full_name')</label>
+                    <input type="text"
+                           required
+                           name="full_name"
+                           value="{{old('full_name')}}"
+                           placeholder="@lang('{{base_namespace_small}}.full_name')"
+                           class="form-control form-control-lg"
+                           maxlength="100"
+                           minlength="2"
+                           data-error-required="{{ __('{{base_namespace_small}}.name_required') }}"
+                           data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
+                           data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
+                    >
+                    <div class="text-danger small mt-1">
+                        @error('full_name')
+                        {{ $message }}
+                        @enderror
+                    </div>
+
+                </div>
+
+
+
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label"
+                    >@lang('{{base_namespace_small}}.email')</label>
+                    <input type="email"
+                           placeholder="@lang('{{base_namespace_small}}.email')"
+                           name="email"
+                           value="{{old('email')}}"
+                           required
+                           data-error-required="{{ __('{{base_namespace_small}}.email_required') }}"
+                           data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
+                           data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
+                           class="form-control form-control-lg"
+                           maxlength="100"
+                           minlength="2"
+                    >
+                    <div class="text-danger small mt-1">
+                        @error('email')
+                        {{ $message }}
+                        @enderror
+                    </div>
+
+                </div>
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12 position-relative">
+                    <label class="form-label">@lang('{{base_namespace_small}}.mobile')</label>
+                    <input type="tel"
+                           class="form-control form-control-lg"
+                           placeholder="@lang('{{base_namespace_small}}.mobile')"
+                           id="phone"
+                           name="mobile"
+                           dir="ltr"
+                           required
+                           data-error-required="{{ __('{{base_namespace_small}}.phone_required') }}"
+                           data-error-number="{{ __('{{base_namespace_small}}.please_add_numbers_only') }}"
+                           data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
+                           data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
+                           minlength="2"
+                           maxlength="14"
+                           value="{{ old('mobile') }}">
+                </div>
+
+
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label"
+                    >@lang('{{base_namespace_small}}.address')</label>
+                    <textarea name="address"
+                              placeholder="@lang('{{base_namespace_small}}.address')"
+                              maxlength="100"
+                              minlength="2"
+                              data-error-required="{{ __('{{base_namespace_small}}.last_name_ar_required') }}"
+                              data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
+                              data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
+                              class="form-control form-control-lg">{{old('address')}}</textarea>
+                    <div class="text-danger small mt-1">
+                        @error('address')
+                        {{ $message }}
+                        @enderror
+                    </div>
+
+                </div>
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label"
+                    >@lang('{{base_namespace_small}}.identity')</label>
+                    <input type="text"
+                           name="identity"
+                           placeholder="@lang('{{base_namespace_small}}.identity')"
+                           value="{{ old('identity') }}"
+                           maxlength="20"
+                           minlength="2"
+                           data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
+                           data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
+                           class="form-control form-control-lg"
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+
+                    <div class="text-danger small mt-1">
+                        @error('identity')
+                        {{ $message }}
+                        @enderror
+                    </div>
+
+                </div>
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label"
+                    >@lang('{{base_namespace_small}}.image')</label>
+                    <input type="file"
+                           name="image"
+                           data-error-required="{{ __('{{base_namespace_small}}.image_required') }}"
+                           accept=".png,.jpg,.jpeg"
+                           data-max-size="5000000"
+                           data-error-file="@lang('{{base_namespace_small}}.file_error',['type' => '.png, .jpg, .jpeg', 'size' => '5MB'])"
+                           class="form-control form-control-lg">
+                </div>
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label">@lang('{{base_namespace_small}}.role')</label>
+                    <select name="role" class="form-select"
+                            style="height: 48px;" required data-error-required="{{ __('{{base_namespace_small}}.role_required') }}">
+                        <option disabled hidden value="" {{ old('role', ${{variable}}->role ?? null) ? '' : 'selected' }}>
+                        @lang('{{base_namespace_small}}.role')
+                        </option>
+                        @foreach($roles as $role)
+                        <option value="{{ $role->name }}"
+                                {{ old('role', ${{variable}}->role ?? null) == $role->name ? 'selected' : '' }}>
+                        {{ $role->name }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label">@lang('{{base_namespace_small}}.country')</label>
+                    <select name="country_id"
+                            style="height: 48px;"
+                            class="form-select">
+                        <option disabled
+                                hidden {{ old('country_id', ${{variable}}->country_id ?? null) ? '' : 'selected' }}>
+                        @lang('{{base_namespace_small}}.country')
+                        </option>
+                        @foreach($countries as $country)
+                        <option value="{{ $country->id }}"
+                                {{ old('country_id', ${{variable}}->country_id ?? null) == $country->id ? 'selected' : '' }}>
+                        {{ $country->name }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label">@lang('{{base_namespace_small}}.nationality')</label>
+                    <select name="nationality_id"
+                            style="height: 48px;"
+                            class="form-select">
+                        <option disabled
+                                hidden {{ old('nationality_id', ${{variable}}->nationality_id ?? null) ? '' : 'selected' }}>
+                        @lang('{{base_namespace_small}}.nationality')
+                        </option>
+                        @foreach($countries as $country)
+                        <option value="{{ $country->id }}"
+                                {{ old('nationality_id', ${{variable}}->nationality_id ?? null) == $country->id ? 'selected' : '' }}>
+                        {{ $country->nationality }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label"
+                    >@lang('{{base_namespace_small}}.password')</label>
+                    <div class="position-relative">
+                        <input type="password"
+                               name="password"
+                               id="password"
+                               class="form-control form-control-lg form_password"
+                               placeholder="*********"
+                               required
+                               autocomplete="off"
+                               data-error-strength="{{ __('{{base_namespace_small}}.password_strength') }}"
+                               data-password-strength
+                               data-error-required="{{ __('{{base_namespace_small}}.password_required') }}"
+
+                        >
+
+                        <span class="abs_iconN password_TgBttn"><i
+                                class="fas fa-eye password-toggle-icon"></i></span>
+                    </div>
+                    <div class="text-danger small mt-1">
+                        @error('password')
+                        {{ $message }}
+                        @enderror
+                    </div>
+                </div>
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label"
+                    >@lang('{{base_namespace_small}}.confirm_password')</label>
+                    <div class="position-relative">
+                        <input type="password"
+                               name="password_confirmation"
+                               class="form-control form-control-lg form_password"
+                               placeholder="*********"
+                               required
+                               id="confirm_password"
+                               same-password="#password"
+                               autocomplete="off"
+                               data-error-required="{{ __('{{base_namespace_small}}.password_conformation_required') }}"
+
+                               data-error-same="{{ __('{{base_namespace_small}}.password_not_same') }}"
+                        >
+
+                        <span class="abs_iconN password_TgBttn"><i
+                                class="fas fa-eye password-toggle-icon"></i></span>
+                    </div>
+                    <div class="text-danger small mt-1">
+                        @error('password_confirmation')
+                        {{ $message }}
+                        @enderror
+                    </div>
+
+                </div>
+
+                <div class="col-12 d-flex ">
+                    <button type="submit"
+                            data-saving="@lang('{{base_namespace_small}}.saving')"
+                            class="save-btn  me-2"
+                            data-i18n="buttons.save">@lang('{{base_namespace_small}}.save')</button>
+                    <a type="button"
+                       class="me-2 cancel-btn"
+                       href="{{ route('{{base_namespace_small}}.{{snakePlural}}.index') }}"
+                    >
+                        @lang('{{base_namespace_small}}.cancel')
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endsection
+@section('scripts')
+@publicScript('just-validate.min.js')
+@jsLang('{{base_namespace_small}}.this_field_is_required', '{{base_namespace_small}}.no_html_tags', '{{base_namespace_small}}.max_length' , '{{base_namespace_small}}.min_length', '{{base_namespace_small}}.email_invalid')
+@vite(['resources/js/global-validator.js'])
+{{--    <script>--}}
+    {{--        document.addEventListener('DOMContentLoaded', function () {--}}
+        {{--            const phoneInputField = document.querySelector("#phone");--}}
+        {{--            if (!phoneInputField) return;--}}
+
+        {{--            const form = phoneInputField.closest("form");--}}
+        {{--            const phoneInput = window.intlTelInput(phoneInputField, {--}}
+            {{--                initialCountry: "sa",--}}
+            {{--                preferredCountries: ["sa", "eg", "ae"],--}}
+            {{--                separateDialCode: true,--}}
+            {{--                nationalMode: false,--}}
+            {{--                utilsScript: "{{ asset('assets/js/tel.min.js') }}"--}}
+            {{--            });--}}
+
+        {{--            // Create error message element--}}
+            {{--            const errorElement = document.createElement('div');--}}
+            {{--            errorElement.className = 'invalid-feedback';--}}
+            {{--            errorElement.style.display = 'none';--}}
+            {{--            phoneInputField.parentNode.appendChild(errorElement);--}}
+
+            {{--            // Integrate with global validation--}}
+                {{--            form.addEventListener("submit", function (e) {--}}
+                {{--                const isValid = phoneInput.isValidNumber();--}}
+
+                {{--                if (!isValid) {--}}
+                    {{--                    phoneInputField.classList.add("is-invalid");--}}
+                    {{--                    errorElement.textContent = 'Please enter a valid phone number';--}}
+                    {{--                    errorElement.style.display = 'block';--}}
+
+                    {{--                    // Let global validator handle the prevention--}}
+                        {{--                    return; // Don't preventDefault here--}}
+                        {{--                } else {--}}
+                        {{--                    phoneInputField.classList.remove("is-invalid");--}}
+                        {{--                    errorElement.style.display = 'none';--}}
+
+                        {{--                    // Format the number properly before submission--}}
+                            {{--                    phoneInputField.value = phoneInput.getNumber();--}}
+                            {{--                }--}}
+                            {{--            });--}}
+                        {{--        });--}}
+                        {{--    </script>--}}
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const imageField = document.querySelector('input[type="file"][name="image"]');
+
+        if (!imageField) return;
+
+        // Get allowed types and max size from attributes
+        const allowedTypes = (imageField.getAttribute('accept') || '').split(',').map(ext => ext.trim().toLowerCase());
+        const maxSize = parseInt(imageField.dataset.maxSize) || 5000000; // default 5MB
+        const required = imageField.hasAttribute('required');
+        const requiredMessage = imageField.dataset.errorRequired || 'This field is required.';
+
+        // Create or get error container
+        let errorMessage = imageField.parentElement.querySelector('.text-danger');
+        if (!errorMessage) {
+            errorMessage = document.createElement('div');
+            errorMessage.classList.add('text-danger', 'mt-1', 'small');
+            imageField.parentElement.appendChild(errorMessage);
+        }
+
+        imageField.addEventListener('change', function () {
+            const file = imageField.files[0];
+            let isValid = true;
+
+            // Reset any previous error state
+            errorMessage.innerHTML = '';
+            errorMessage.style.display = 'none';
+            imageField.classList.remove('is-invalid');
+
+            if (!file) {
+                if (required) {
+                    isValid = false;
+                    errorMessage.innerHTML = requiredMessage;
+                }
+            } else {
+                const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+                if (!allowedTypes.includes(fileExt)) {
+                    isValid = false;
+                    {{--errorMessage.innerHTML = `@lang('{{base_namespace_small}}.file_error', ['type' => '.png, .jpg, .jpeg', 'size' => '5MB'])`;--}}
+                } else if (file.size > maxSize) {
+                    isValid = false;
+                    {{--errorMessage.innerHTML = `@lang('{{base_namespace_small}}.file_error', ['type' => '.png, .jpg, .jpeg', 'size' => '5MB'])`;--}}
+                }
+            }
+
+            if (!isValid) {
+                imageField.classList.add('is-invalid');
+                errorMessage.style.display = 'block';
+            }
+        });
+    });
+</script>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const slugInput = document.querySelector('input[name="slug"]');
+        const titleInput = document.querySelector('input[name="title_en"]');
+
+        let isSlugEditedManually = false;
+
+        // Helper: Remove non-English letters (A-Z, a-z, numbers, and dash only)
+        function sanitizeToEnglish(text) {
+            return text
+                .replace(/\s+/g, '-')           // Replace spaces with dashes
+                .replace(/-+/g, '-')            // Replace multiple dashes with a single one
+                .replace(/[^a-zA-Z0-9-]/g, '')  // Remove non-English characters
+                .toLowerCase();                 // Lowercase
+        }
+
+        slugInput.addEventListener('input', function () {
+            isSlugEditedManually = true;
+            this.value = sanitizeToEnglish(this.value);
+        });
+
+        function generateSlug(text) {
+            return text
+                .toString()
+                .normalize("NFD")                      // Normalize accented characters
+                .replace(/[\u0300-\u036f]/g, '')       // Remove accents
+                .replace(/[^\x00-\x7F]/g, '')          // Remove non-ASCII characters (non-English)
+                .replace(/[^\w\s-]/g, '')              // Remove special symbols
+                .trim()
+                .replace(/\s+/g, '-')                  // Replace spaces with dashes
+                .toLowerCase();
+        }
+
+        titleInput.addEventListener('input', function () {
+            if (!isSlugEditedManually) {
+                slugInput.value = generateSlug(this.value);
+            }
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const imageInput = document.querySelector('input[name="image"]');
+
+        // عناصر المعاينة
+        const previewContainer = document.createElement('div');
+        previewContainer.style.position = 'relative';
+        previewContainer.style.display = 'none';
+        previewContainer.style.marginTop = '10px';
+        previewContainer.style.maxWidth = '200px';
+
+        const preview = document.createElement('img');
+        preview.style.width = '100%';
+        preview.style.borderRadius = '6px';
+        preview.style.display = 'block';
+
+        const removeBtn = document.createElement('button');
+        removeBtn.textContent = '✖';
+        removeBtn.type = 'button';
+        removeBtn.style.position = 'absolute';
+        removeBtn.style.top = '4px';
+        removeBtn.style.right = '4px';
+        removeBtn.style.background = 'rgba(220, 53, 69, 0.9)';
+        removeBtn.style.color = '#fff';
+        removeBtn.style.border = 'none';
+        removeBtn.style.borderRadius = '50%';
+        removeBtn.style.width = '24px';
+        removeBtn.style.height = '24px';
+        removeBtn.style.cursor = 'pointer';
+        removeBtn.style.fontSize = '14px';
+        removeBtn.style.lineHeight = '22px';
+        removeBtn.style.textAlign = 'center';
+        removeBtn.style.padding = '0';
+        removeBtn.title = 'Remove image';
+
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'text-danger small mt-1';
+        errorMsg.style.display = 'none';
+
+        previewContainer.appendChild(preview);
+        previewContainer.appendChild(removeBtn);
+        imageInput.parentNode.appendChild(previewContainer);
+        imageInput.parentNode.appendChild(errorMsg);
+
+        // عند اختيار صورة
+        imageInput.addEventListener('change', function () {
+            const file = this.files[0];
+            previewContainer.style.display = 'none';
+            errorMsg.style.display = 'none';
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // إزالة الصورة عند الضغط على ✖
+        removeBtn.addEventListener('click', function () {
+            imageInput.value = '';
+            preview.src = '';
+            previewContainer.style.display = 'none';
+            errorMsg.style.display = 'none';
+        });
+    });
+</script>
+@endsection
