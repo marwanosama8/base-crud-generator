@@ -106,6 +106,7 @@ class GenerateCrudCommand extends Command
             $this->filesystem->put($filePath, $stubContent);
         }
     }
+
     protected function getStubContent($stubType)
     {
         $stubPath = __DIR__ . "/../Stubs/" . Str::snake($stubType) . ".stub";
@@ -139,15 +140,23 @@ class GenerateCrudCommand extends Command
     protected function addRoutes()
     {
         $routeFile = base_path('routes/admin.php');
+        $namespace = $this->baseNamespace; // Assuming you have this property
+        $controllerNamespace = "App\\Http\\Controllers\\{$namespace}\\{$this->singular}Controller";
+        $repositoryInterface = "App\\Repositories\\Interfaces\\{$this->singular}RepositoryInterface";
+        $repository = "App\\Repositories\\{$this->singular}Repository";
 
         if (!$this->filesystem->exists($routeFile)) {
-            $this->filesystem->put($routeFile, "<?php\n\nuse Illuminate\Support\Facades\Route;\n\n");
+            $this->filesystem->put($routeFile, "<?php\n\nuse Illuminate\Support\Facades\Route;\nuse Illuminate\\Support\\Facades\\App;\n\n");
         }
 
         $routes = <<<EOT
 
         // {$this->singular} Routes
-        use App\Http\Controllers\{$this->namespace}\{$this->singular}Controller;
+        use {$controllerNamespace};
+        use {$repositoryInterface};
+        use {$repository};
+
+        $this->app->bind({$repositoryInterface}::class,{$repository}::class);
 
         Route::resource('{$this->snakePlural}', {$this->singular}Controller::class)->except('show');
         Route::get('{$this->snakePlural}-archive', [{$this->singular}Controller::class, 'archive'])->name('{$this->snakePlural}.archive');
