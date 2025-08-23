@@ -1,6 +1,37 @@
-@extends('components.layouts.{{base_namespace_small}}.master')
+@extends('components.{{dashboard_small}}.layouts.{{base_namespace_small}}.master')
 @section('title')
 @lang('{{base_namespace_small}}.edit_{{variable}}')
+@endsection
+@section('style')
+{{--  map style  --}}
+
+{{-- <style>
+    .map-error {
+        display: none;
+        color: rgb(184, 17, 17);
+        font-size: 0.875rem;
+        margin-top: 5px;
+        border-radius: 0.25rem;
+    }
+
+    .leaflet-touch .leaflet-geosearch-bar form input {
+        padding: 10px;
+    }
+    #map.is-invalid {
+        border: 2px solid rgb(184, 17, 17);
+        border-radius: 0.25rem;
+    }
+</style> --}}
+
+{{--  map scripts  --}}
+{{--    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>--}}
+{{--    <!-- Esri Geocoder CSS -->--}}
+{{--    <link--}}
+{{--        rel="stylesheet"--}}
+{{--        href="https://unpkg.com/leaflet-geosearch@3.0.0/dist/geosearch.css"--}}
+{{--    />--}}
+{{--    <link rel="stylesheet" href="{{asset('assets')}}/css/simple-locate-demo.css">--}}
+
 @endsection
 
 @section('content')
@@ -9,7 +40,7 @@
         <!-- Start:: Header Section -->
         <div class="nav-container">
             <div class="nav-content">
-                <a href="{{ route('{{base_namespace_small}}.{{snakePlural}}.index') }}" class="action-button">
+                <a href="{{ route('{{dashboard_small}}.{{base_namespace_small}}.{{snakePlural}}.index') }}" class="action-button">
                     <i class="fas fa-chevron-right back_button"></i>
                 </a>
                 <div class="nav-text">
@@ -17,12 +48,12 @@
                         @lang('{{base_namespace_small}}.edit_{{variable}}')
                     </div>
                     <div class="breadcrumb-container">
-                        <a href="{{ route('{{base_namespace_small}}.{{base_namespace_small}}') }}"
+                        <a href="{{ route('{{dashboard_small}}.{{base_namespace_small}}.{{base_namespace_small}}') }}"
                            class="breadcrumb-item breadcrumb-link"
                         ></a>
                         @lang('{{base_namespace_small}}.home')
                         <i class="fas fa-chevron-right rotate_button"></i>
-                        <a href="{{ route('{{base_namespace_small}}.{{snakePlural}}.index') }}"
+                        <a href="{{ route('{{dashboard_small}}.{{base_namespace_small}}.{{snakePlural}}.index') }}"
                            class="breadcrumb-item breadcrumb-link-home"
                         >@lang('{{base_namespace_small}}.{{snakePlural}}')</a>
                         <i class="fas fa-chevron-right rotate_button"></i>
@@ -38,239 +69,233 @@
 
         <div class="white_block  mt-5">
             <form class="row"
-                  action="{{ route('{{base_namespace_small}}.{{snakePlural}}.update', ${{variable}}->uuid) }}"
+                  action="{{ route('{{dashboard_small}}.{{base_namespace_small}}.{{snakePlural}}.update', ${{variable}}->uuid) }}"
                   method="POST"
-                  data-validate
-                  id="editAdminForm"
-                  enctype="multipart/form-data">
+                  enctype="multipart/form-data" data-validate id="{{variable}}CreateForm">
                 @csrf
                 @method('PUT')
+
+                {{--    full name ar--}}
                 <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label"
-                           data-i18n="labels.client_name">@lang('{{base_namespace_small}}.first_name')</label>
-                    <input type="text"
-                           name="first_name"
-                           value="{{${{variable}}->first_name}}"
-                           placeholder="@lang('{{base_namespace_small}}.first_name')"
+                    <label class="form-label">@lang('dashboard.arabic_full_name')</label>
+                    <input type="text" data-error-emoji="{{__('dashboard.no-emoji')}}"
                            class="form-control form-control-lg"
-                           maxlength="30"
+                           name="full_name_ar"
                            required
-                           data-error-required="{{ __('{{base_namespace_small}}.first_name_required') }}"
-                           data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
-                           data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
+                           value="{{${{variable}}->translations()->where('locale', 'ar')->first()->full_name}}"
+                           data-error-minlength="{{ __('dashboard.min_length') . 2 }}"
+                           data-error-html="{{ __('dashboard.no_html_tags') }}"
+                           data-error-required="{{ __('dashboard.this_field_is_required') }}"
                            minlength="2"
-                    >
-                    <div class="text-danger small mt-1">
-                        @error('first_name')
-                        {{ $message }}
-                        @enderror
-                    </div>
-
-                </div>
-                <!--  National Field -->
-
-
-                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label"
-                           data-i18n="labels.client_name">@lang('{{base_namespace_small}}.second_name')</label>
-                    <input type="text"
-                           name="second_name"
-                           value="{{${{variable}}->second_name}}"
-                           placeholder="@lang('{{base_namespace_small}}.second_name')"
-                           class="form-control form-control-lg"
-                           maxlength="30"
-                           data-error-required="{{ __('{{base_namespace_small}}.second_name_required') }}"
-                           data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
-                           data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
-                           minlength="2"
-                    >
-                    <div class="text-danger small mt-1">
-                        @error('second_name')
-                        {{ $message }}
-                        @enderror
-                    </div>
-
-                </div>
-                <!--  National Field -->
-
-                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label"
-                           data-i18n="labels.client_name">@lang('{{base_namespace_small}}.third_name')</label>
-                    <input type="text"
-                           name="third_name"
-                           value="{{${{variable}}->third_name}}"
-                           placeholder="@lang('{{base_namespace_small}}.third_name')"
-                           class="form-control form-control-lg"
-                           maxlength="30"
-                           data-error-required="{{ __('{{base_namespace_small}}.third_name_required') }}"
-                           data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
-                           data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
-                           minlength="2"
-                    >
-                    <div class="text-danger small mt-1">
-                        @error('third_name')
-                        {{ $message }}
-                        @enderror
-                    </div>
-
-                </div>
-                <!--  National Field -->
-                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label"
-                    >@lang('{{base_namespace_small}}.last_name')</label>
-                    <input type="text"
-                           name="last_name"
-                           value="{{${{variable}}->last_name}}"
-                           placeholder="@lang('{{base_namespace_small}}.last_name')"
-                           class="form-control form-control-lg"
-                           maxlength="30"
-                           required
-                           data-error-required="{{ __('{{base_namespace_small}}.last_name_required') }}"
-                           data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
-                           data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
-                           minlength="2"
-
-                    >
-                    <div class="text-danger small mt-1">
-                        @error('last_name')
-                        {{ $message }}
-                        @enderror
-                    </div>
-
-                </div>
-                <!--  National Field -->
-
-                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label"
-                    >@lang('{{base_namespace_small}}.full_name')</label>
-                    <input type="text"
-                           name="full_name"
-                           value="{{${{variable}}->full_name}}"
-                           placeholder="@lang('{{base_namespace_small}}.full_name')"
-                           class="form-control form-control-lg"
                            maxlength="100"
-                           data-error-required="{{ __('{{base_namespace_small}}.full_name_required') }}"
-                           data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
-                           data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
-                           minlength="2"
-                           required
+                           placeholder="@lang('dashboard.arabic_full_name')"
                     >
-                    <div class="text-danger small mt-1">
-                        @error('full_name')
-                        {{ $message }}
-                        @enderror
-                    </div>
-
+                </div>
+                {{--        full name en--}}
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label">@lang('dashboard.english_full_name')</label>
+                    <input type="text" data-error-emoji="{{__('dashboard.no-emoji')}}"
+                           class="form-control form-control-lg"
+                           name="full_name_en"
+                           required
+                           value="{{${{variable}}->translations()->where('locale', 'en')->first()->full_name}}"
+                           data-error-minlength="{{ __('dashboard.min_length') . 2 }}"
+                           data-error-html="{{ __('dashboard.no_html_tags') }}"
+                           data-error-required="{{ __('dashboard.this_field_is_required') }}"
+                           minlength="2"
+                           maxlength="100"
+                           pattern=""
+                           placeholder="@lang('dashboard.english_full_name')"
+                    >
                 </div>
                 <!--  National Field -->
 
                 <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label"
-                    >@lang('{{base_namespace_small}}.email')</label>
+                    <label class="form-label">@lang('dashboard.email')</label>
                     <input type="email"
-                           placeholder="@lang('{{base_namespace_small}}.email')"
+                           placeholder="@lang('dashboard.email')"
                            name="email"
                            value="{{${{variable}}->email}}"
+                           required
+                           data-error-required="{{ __('dashboard.this_field_is_required') }}"
+                           data-error-minlength="{{ __('dashboard.min_length') . 2 }}"
+                           data-error-html="{{ __('dashboard.no_html_tags') }}"
                            class="form-control form-control-lg"
                            maxlength="100"
-                           required
-                           data-error-required="{{ __('{{base_namespace_small}}.email_required') }}"
-                           data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
-                           data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
                            minlength="2"
                     >
-                    <div class="text-danger small mt-1">
-                        @error('email')
-                        {{ $message }}
-                        @enderror
-                    </div>
+                </div>
+
+
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label">@lang('dashboard.mobile')</label>
+                    <input type="tel"
+                           class="form-control form-control-lg"
+                           placeholder="@lang('dashboard.mobile')"
+                           id="phone"
+                           name="phone"
+                           dir="ltr"
+                           required
+                           data-error-required="{{ __('dashboard.this_field_is_required') }}"
+                           data-error-number="{{ __('dashboard.please_add_numbers_only') }}"
+                           data-error-minlength="{{ __('dashboard.min_length') . 2 }}"
+                           data-error-html="{{ __('dashboard.no_html_tags') }}"
+                           minlength="2"
+                           maxlength="14"
+                           value="{{ ${{variable}}->phone }}"
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                    >
+                </div>
+
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label">@lang('dashboard.code')</label>
+                    <input type="text" data-error-emoji="{{__('dashboard.no-emoji')}}"
+                           name="code"
+                           pattern="^[A-Za-z0-9]+$"
+                           value="{{${{variable}}->code}}"
+                           data-error-minlength="{{ __('dashboard.min_length') . 2 }}"
+                           data-error-html="{{ __('dashboard.no_html_tags') }}"
+                           data-error-required="{{ __('dashboard.this_field_is_required') }}"
+                           minlength="2"
+                           maxlength="20"
+                           class="form-control form-control-lg"
+                           placeholder="@lang('dashboard.code')">
+
+                </div>
+                <!--  National Field -->
+
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label" for="country_id">@lang('dashboard.country')</label>
+                    <select
+                        required
+                        data-error-required="{{ __('dashboard.this_field_is_required') }}"
+                        name="country_id" id="country_div" class="form-control form-select form-control-lg">
+                        <option disabled selected value="">@lang('dashboard.loading')</option>
+                    </select>
+                </div>
+
+
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label" for="city_id">@lang('dashboard.city')</label>
+                    <select name="city_id" id="city_div"
+                            required
+                            data-error-required="{{ __('dashboard.this_field_is_required') }}"
+                            class="form-control form-select form-control-lg">
+                        <option disabled selected value="">@lang('dashboard.choose_country_first')</option>
+                    </select>
 
                 </div>
                 <div class="mb-4 col-lg-6 col-md-12 col-sm-12 position-relative">
-                    <label class="form-label">@lang('{{base_namespace_small}}.mobile')</label>
-                    <input type="tel"
-                           class="form-control form-control-lg"
-                           placeholder="@lang('{{base_namespace_small}}.mobile')"
-                           id="phone"
-                           name="mobile"
-                           dir="ltr"
-                           required
-                           data-error-number="{{ __('{{base_namespace_small}}.please_add_numbers_only') }}"
-                           data-error-required="{{ __('{{base_namespace_small}}.phone_required') }}"
-                           data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
-                           data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
-                           minlength="2"
-                           maxlength="14"
-                           value="{{ ${{variable}}->mobile }}">
+                    <label class="form-label" for="district_id">@lang('dashboard.district')</label>
+                    <select name="district_id" id="district_id" class="form-control form-select form-control-lg"
+                            disabled>
+                        <option disabled selected>@lang('dashboard.choose_city_first')</option>
+                    </select>
+                </div>
+
+
+                {{--@dd(${{variable}}->cultural_entity_type_id)--}}
+                {{--                    ddl depend on query--}}
+                {{-- <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label" for="type_id">@lang('dashboard.type')</label>
+                    <select required
+                            data-error-required="{{ __('dashboard.this_field_is_required') }}"
+                            name="cultural_entity_type_id" class="form-control form-select form-control-lg">
+                        <option disabled hidded
+                                value="" {{ old('cultural_entity_type_id', ${{variable}}->cultural_entity_type_id) ? '' : 'selected' }}>@lang('dashboard.choose_type')</option>
+                        @foreach(\App\Models\CulturalEntityType::with(['translations' => function($query) {
+                        $query->where('locale', app()->getLocale());
+                        }])->get() as $type)
+                        <option
+                            value="{{ $type->id }}" {{$type->id ==  ${{variable}}->cultural_entity_type_id ? 'selected' : ''}}>
+                            {{ $type->translations->first()->name ?? $type->key }}
+                        </option>
+                        @endforeach
+                    </select>
+
+                </div>--}}
+
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label" for="password">@lang('dashboard.password')</label>
+                    <div class="position-relative">
+                        <input type="password"
+                               name="temp_password"
+                               id="password"
+                               class="form-control form-control-lg form_password"
+                               placeholder="*********"
+                               data-error-required="{{ __('dashboard.this_field_is_required') }}"
+                               maxlength="20"
+                               minlength="8"
+                               autocomplete="new-password"
+                               data-error-minlength="{{ __('dashboard.min_length') . 8 }}"
+                               data-error-strength="{{ __('dashboard.password_strength') }}"
+                               data-password-strength
+                               aria-labelledby="password-label"
+                               aria-describedby="password-help"
+                        >
+                        <span class="abs_iconN password_TgBttn" onclick="togglePasswordVisibility('password')">
+                                 <i class="fas fa-eye password-toggle-icon" aria-hidden="true"
+                                    aria-label="Show/Hide password"></i>
+                            </span>
+                    </div>
+                    <div class="text-danger small mt-1" id="password-help">
+                        @error('password')
+                        {{ $message }}
+                        @enderror
+                    </div>
                 </div>
 
 
                 <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label"
-                    >@lang('{{base_namespace_small}}.address')</label>
+                    <label class="form-label">@lang('dashboard.address')</label>
                     <textarea name="address"
-                              placeholder="@lang('{{base_namespace_small}}.address')"
-                              maxlength="100"
-                              data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
-                              data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
+                              required
+                              data-error-minlength="{{ __('dashboard.min_length') . 2 }}"
+                              data-error-html="{{ __('dashboard.no_html_tags') }}"
+                              data-error-required="{{ __('dashboard.this_field_is_required') }}"
                               minlength="2"
-                              class="form-control form-control-lg">{{${{variable}}->address}}</textarea>
-                    <div class="text-danger small mt-1">
-                        @error('address')
-                        {{ $message }}
-                        @enderror
-                    </div>
+                              maxlength="255"
+                              class="form-control form-control-lg"
+                              placeholder="@lang('dashboard.address')">{{${{variable}}->address}}</textarea>
+
 
                 </div>
+
+
                 <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label"
-                    >@lang('{{base_namespace_small}}.identity')</label>
-                    <input type="text"
-                           name="identity"
-                           placeholder="@lang('{{base_namespace_small}}.identity')"
-                           value="{{ ${{variable}}->identity }}"
-                           maxlength="20"
-                           data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
-                           data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
-                           minlength="2"
-                           class="form-control form-control-lg"
-                           oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-
-                    <div class="text-danger small mt-1">
-                        @error('identity')
-                        {{ $message }}
-                        @enderror
-                    </div>
-
-                </div>
-                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label">@lang('{{base_namespace_small}}.image')</label>
-                    <input type="file"
-                           name="image"
-                           id="mainImageInput"
-                           data-error-required="{{ __('{{base_namespace_small}}.image_required') }}"
-                           accept=".png,.jpg,.jpeg"
-                           data-max-size="5000000"
-                           data-error-file="@lang('{{base_namespace_small}}.file_error',['type' => '.png, .jpg, .jpeg', 'size' => '5MB'])"
-                           class="form-control form-control-lg">
-                    <small class="text-danger d-none" id="mainImageSizeError">@lang('{{base_namespace_small}}.image_size_error')</small>
-                    <input type="hidden" name="remove_image" id="mainImageRemoveFlag" value="0">
-
+                    <label class="form-label">@lang('dashboard.logo')</label>
                     @php
-                    $imageUrl = ${{variable}}->getFirstMediaUrl('image');
+                    $imageUrl = ${{variable}}->getFirstMediaUrl('licence_document');
                     @endphp
 
-                    <div class="image-preview-container mt-3"
-                         id="mainImagePreview"
-                         style="{{ $imageUrl ? '' : 'display: none;' }} width: fit-content; position: relative;">
-                        <a href="{{ $imageUrl ?: '#' }}" target="_blank" id="mainImageLink" style="display: inline-block; position: relative;">
-                            <img id="mainImagePreviewImg" src="{{ $imageUrl ?: '#' }}" alt=""
-                                 style="height: 100px; border-radius: 6px;">
-                            <span class="remove-preview" id="mainImageRemoveBtn"
-                                  style="position: absolute; top: -8px; right: -8px; background: rgba(220, 53, 69, 0.9); color: #fff; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 14px; line-height: 18px; text-align: center;">×</span>
+                    <input type="file" style="@if(app()->getLocale() === 'ar') direction: ltr !important; @endif"
+                           name="image"
+                           id="mainImageInput"
+                           accept=".jpg,.jpeg,.png,.gif,.webp"
+                           {{-- @if(empty($imageUrl)) required @endif--}}
+                           data-has-existing="{{ $imageUrl ? '1' : '0' }}"
+                           data-error-required="@lang('dashboard.this_field_is_required')"
+                           data-error-size="@lang('dashboard.image_max_size_is_2mb')"
+                           data-error-type="@lang('dashboard.invalid_image_type')"
+                           class="form-control form-control-lg">
 
+                    <input type="hidden" name="remove_image" id="remove_image" value="0">
+
+                    {{-- معاينة الصورة القديمة (لو موجودة) --}}
+                    @if($imageUrl)
+                    <div id="existing-image" class="mt-2"
+                         style="position:relative;max-width:100px;height:100px">
+                        <a href="{{ $imageUrl }}" target="_blank" id="existing-image-link">
+                            <img src="{{ $imageUrl }}" alt=""
+                                 style="width:100%;border-radius:6px;height: 100%;">
                         </a>
+                        <button type="button" id="remove-existing-image"
+                                style="position:absolute;top:4px;right:4px;background:rgba(220,53,69,.9);color:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer">
+                            ✖
+                        </button>
                     </div>
+                    @endif
+
 
                     <div class="text-danger small mt-1">
                         @error('image')
@@ -278,128 +303,30 @@
                         @enderror
                     </div>
                 </div>
-                {{-- Role --}}
-                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label">@lang('{{base_namespace_small}}.role')</label>
-                    <select name="role" class="form-select"
-                            style="height: 48px;"
-                            required data-error-required="{{ __('{{base_namespace_small}}.role_required') }}">
-                        <option disabled hidden value="" {{ old('role', ${{variable}}->role) ? '' : 'selected' }}>
-                        @lang('{{base_namespace_small}}.role')
-                        </option>
-                        @foreach($roles as $role)
-                        <option value="{{ $role->name }}"
-                                {{ old('role', ${{variable}}->getRoleNames()->first()) == $role->name ? 'selected' : '' }}>
-                        {{ $role->name }}
-                        </option>
-                        @endforeach
-                    </select>
-                    <div class="text-danger small mt-1">
-                        @error('role') {{ $message }} @enderror
-                    </div>
-                </div>
-
-                {{-- Country --}}
-                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label">@lang('{{base_namespace_small}}.country')</label>
-                    <select name="country_id"
-                            style="height: 48px;"
-                            class="form-select">
-                        <option disabled hidden {{ old('country_id', ${{variable}}->country_id) ? '' : 'selected' }}>
-                        @lang('{{base_namespace_small}}.country')
-                        </option>
-                        @foreach($countries as $country)
-                        <option value="{{ $country->id }}"
-                                {{ old('country_id', ${{variable}}->country_id) == $country->id ? 'selected' : '' }}>
-                        {{ $country->name }}
-                        </option>
-                        @endforeach
-                    </select>
-                    <div class="text-danger small mt-1">
-                        @error('country_id') {{ $message }} @enderror
-                    </div>
-                </div>
-
-                {{-- Nationality --}}
-                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label">@lang('{{base_namespace_small}}.nationality')</label>
-                    <select name="nationality_id"
-                            style="height: 48px;"
-                            class="form-select">
-                        <option disabled hidden {{ old('nationality_id', ${{variable}}->nationality_id) ? '' : 'selected' }}>
-                        @lang('{{base_namespace_small}}.nationality')
-                        </option>
-                        @foreach($countries as $country)
-                        <option value="{{ $country->id }}"
-                                {{ old('nationality_id', ${{variable}}->nationality_id) == $country->id ? 'selected' : '' }}>
-                        {{ $country->nationality }}
-                        </option>
-                        @endforeach
-                    </select>
-                    <div class="text-danger small mt-1">
-                        @error('nationality_id') {{ $message }} @enderror
-                    </div>
-                </div>
 
                 <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label"
-                    >@lang('{{base_namespace_small}}.password')</label>
-                    <div class="position-relative">
-                        <input type="password"
-                               name="password"
-                               id="password"
-                               class="form-control form-control-lg form_password"
-                               placeholder="*********"
-                               autocomplete="off"
-                               data-error-strength="{{ __('{{base_namespace_small}}.password_strength') }}"
-                               data-password-strength
-                        >
+                    <label class="form-label">@lang('dashboard.select_location_on_map')</label>
+                    <div id="map"
+                         data-error-message="{{ __('dashboard.this_field_is_required') }}"
 
-                        <span class="abs_iconN password_TgBttn"><i
-                                class="fas fa-eye password-toggle-icon"></i></span>
-                    </div>
-                    <div class="text-danger small mt-1">
-                        @error('password')
-                        {{ $message }}
-                        @enderror
-                    </div>
+                         style="height: 350px;"></div>
+
+                    <input type="hidden" name="latitude" id="latitude">
+                    <input type="hidden" name="longitude" id="longitude">
+                    <input type="hidden" name="location" id="location">
                 </div>
 
-                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label"
-                    >@lang('{{base_namespace_small}}.confirm_password')</label>
-                    <div class="position-relative">
-                        <input type="password"
-                               name="password_confirmation"
-                               class="form-control form-control-lg form_password"
-                               placeholder="*********"
-                               autocomplete="off"
-                               id="confirm_password"
-                               same-password="#password"
-                               data-error-same="{{ __('{{base_namespace_small}}.password_not_same') }}"
-                        >
-
-                        <span class="abs_iconN password_TgBttn"><i
-                                class="fas fa-eye password-toggle-icon"></i></span>
-                    </div>
-                    <div class="text-danger small mt-1">
-                        @error('password_confirmation')
-                        {{ $message }}
-                        @enderror
-                    </div>
-
-                </div>
 
                 <div class="col-12 d-flex ">
                     <button type="submit"
+                            data-saving="@lang('dashboard.saving')"
                             class="save-btn  me-2"
-                            data-saving="@lang('{{base_namespace_small}}.saving')"
-                            data-i18n="buttons.save">@lang('{{base_namespace_small}}.save')</button>
+                            data-i18n="buttons.save">@lang('dashboard.save')</button>
                     <a type="button"
                        class="me-2 cancel-btn"
-                       href="{{ route('{{base_namespace_small}}.{{snakePlural}}.index') }}"
+                       href="{{ route('{{dashboard_small}}.{{base_namespace_small}}.{{snakePlural}}.index') }}"
                     >
-                        @lang('{{base_namespace_small}}.cancel')
+                        @lang('dashboard.cancel')
                     </a>
                 </div>
             </form>
@@ -409,156 +336,606 @@
 @endsection
 @section('scripts')
 @publicScript('just-validate.min.js')
-@jsLang('{{base_namespace_small}}.this_field_is_required', '{{base_namespace_small}}.no_html_tags', '{{base_namespace_small}}.max_length' , '{{base_namespace_small}}.min_length', '{{base_namespace_small}}.email_invalid')
+@jsLang('dashboard.this_field_is_required', 'dashboard.no_html_tags', 'dashboard.max_length' , 'dashboard.min_length', 'dashboard.email_invalid', 'dashboard.password_invalid','dashboard.email_invalid', 'dashboard.saving')
 @vite(['resources/js/global-validator.js'])
-
-
+{{--  start  password script--}}
+{{--
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const imageField = document.querySelector('input[type="file"][name="image"]');
+        const passwordInputs = document.querySelectorAll('input[type="password"]');
 
-        if (!imageField) return;
+        passwordInputs.forEach(input => {
+            // Block paste
+            input.addEventListener('paste', function (e) {
+                e.preventDefault();
+            });
 
-        // Get allowed types and max size from attributes
-        const allowedTypes = (imageField.getAttribute('accept') || '').split(',').map(ext => ext.trim().toLowerCase());
-        const maxSize = parseInt(imageField.dataset.maxSize) || 5000000; // default 5MB
-        const required = imageField.hasAttribute('required');
-        const requiredMessage = imageField.dataset.errorRequired || 'This field is required.';
+            // Block copy/cut
+            input.addEventListener('copy', function (e) {
+                e.preventDefault();
+            });
 
-        // Create or get error container
-        let errorMessage = imageField.parentElement.querySelector('.text-danger');
-        if (!errorMessage) {
-            errorMessage = document.createElement('div');
-            errorMessage.classList.add('text-danger', 'mt-1', 'small');
-            imageField.parentElement.appendChild(errorMessage);
+            input.addEventListener('cut', function (e) {
+                e.preventDefault();
+            });
+
+            // Block drag-and-drop
+            input.addEventListener('dragstart', function (e) {
+                e.preventDefault();
+            });
+
+            input.addEventListener('dragover', function (e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'none';
+            });
+
+            input.addEventListener('drop', function (e) {
+                e.preventDefault();
+            });
+
+            // Block right-click menu
+            input.addEventListener('contextmenu', function (e) {
+                e.preventDefault();
+            });
+        });
+    })
+
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const password = document.getElementById("password");
+
+        // Reset value after page load (in case autofill already happened)
+        password.value = "";
+
+        // Mutation observer to detect autofill changes
+        const observer = new MutationObserver(() => {
+            if (password.value !== "") {
+                password.value = ""; // clear it if browser autofills
+            }
+        });
+
+        observer.observe(password, {attributes: true, attributeFilter: ["value"]});
+
+        // Extra: clear again when email is autofilled
+        const email = document.getElementById("email");
+        email.addEventListener("change", () => {
+            setTimeout(() => {
+                password.value = "";
+            }, 100); // delay to catch autofill
+        });
+    });
+</script>    --}}
+
+{{--  end  password script--}}
+
+
+{{--    file validation--}}
+{{--    <script>--}}
+    {{--        document.addEventListener('DOMContentLoaded', function () {--}}
+        {{--            const imageField = document.querySelector('input[type="file"][name="logo"]');--}}
+        {{--            if (!imageField) return;--}}
+
+        {{--            const form = imageField.closest('form');--}}
+        {{--            if (!form) return;--}}
+
+        {{--            // Get validation parameters--}}
+            {{--            const allowedTypes = (imageField.getAttribute('accept') || '').split(',')--}}
+            {{--                .map(ext => ext.trim().toLowerCase())--}}
+            {{--                .filter(ext => ext);--}}
+            {{--            const maxSize = parseInt(imageField.dataset.maxSize) || 5000000;--}}
+            {{--            const required = imageField.hasAttribute('required');--}}
+            {{--            const requiredMessage = imageField.dataset.errorRequired || 'This field is required.';--}}
+
+            {{--            // Create error message element if it doesn't exist--}}
+                {{--            let errorMessage = imageField.parentElement.querySelector('.text-danger');--}}
+                {{--            if (!errorMessage) {--}}
+                    {{--                errorMessage = document.createElement('div');--}}
+                    {{--                errorMessage.classList.add('text-danger', 'mt-1', 'small');--}}
+                    {{--                imageField.parentElement.appendChild(errorMessage);--}}
+                    {{--            }--}}
+
+                {{--            // Validation function--}}
+                    {{--            function validateFile() {--}}
+                    {{--                const file = imageField.files[0];--}}
+                    {{--                resetValidation();--}}
+
+                    {{--                if (!file) {--}}
+                        {{--                    if (required) {--}}
+                            {{--                        showError(requiredMessage);--}}
+                            {{--                        return false;--}}
+                            {{--                    }--}}
+                        {{--                    return true; // Not required and no file is valid--}}
+                            {{--                }--}}
+
+                            {{--                // Check file extension--}}
+                                {{--                const fileExt = '.' + file.name.split('.').pop().toLowerCase();--}}
+                                {{--                if (allowedTypes.length > 0 && !allowedTypes.includes(fileExt)) {--}}
+                                    {{--                    showError(imageField.dataset.errorFile);--}}
+                                    {{--                    return false;--}}
+                                    {{--                }--}}
+
+                                {{--                // Check file size--}}
+                                    {{--                if (file.size > maxSize) {--}}
+                                    {{--                    showError(imageField.dataset.errorFile);--}}
+                                    {{--                    return false;--}}
+                                    {{--                }--}}
+
+                                    {{--                return true;--}}
+                                    {{--            }--}}
+
+                                    {{--            function resetValidation() {--}}
+                                        {{--                errorMessage.innerHTML = '';--}}
+                                        {{--                errorMessage.style.display = 'none';--}}
+                                        {{--                imageField.classList.remove('is-invalid');--}}
+                                        {{--                // Also remove any Bootstrap validation classes from parent div if using Bootstrap--}}
+                                            {{--                if (imageField.parentElement.classList.contains('was-validated')) {--}}
+                                            {{--                    imageField.parentElement.classList.remove('was-validated');--}}
+                                            {{--                }--}}
+                                            {{--            }--}}
+
+                                            {{--            function showError(message) {--}}
+                                                {{--                imageField.classList.add('is-invalid');--}}
+                                                {{--                errorMessage.innerHTML = message;--}}
+                                                {{--                errorMessage.style.display = 'block';--}}
+
+                                                {{--                // For better visibility with Bootstrap--}}
+                                                    {{--                const parentControl = imageField.closest('.form-control') || imageField.parentElement;--}}
+                                                    {{--                parentControl.classList.add('is-invalid');--}}
+
+                                                    {{--                console.log('is-invalid class added:', imageField.classList.contains('is-invalid')); // Debug--}}
+                                                        {{--            }--}}
+
+                                                        {{--            // Validate on file change--}}
+                                                            {{--            imageField.addEventListener('change', validateFile);--}}
+
+                                                            {{--            // Validate on form submit--}}
+                                                                {{--            form.addEventListener('submit', function (e) {--}}
+                                                                {{--                if (!validateFile()) {--}}
+                                                                    {{--                    // Add class FIRST before preventing default--}}
+                                                                        {{--                    imageField.classList.add('is-invalid');--}}
+                                                                        {{--                    void imageField.offsetWidth; // Force reflow--}}
+                                                                            {{--                    errorMessage.style.display = 'block';--}}
+
+                                                                            {{--                    e.preventDefault();--}}
+                                                                            {{--                    e.stopPropagation();--}}
+
+                                                                            {{--                    // Double-check after a frame--}}
+                                                                                {{--                    requestAnimationFrame(() => {--}}
+                                                                                {{--                        if (!imageField.classList.contains('is-invalid')) {--}}
+                                                                                    {{--                            imageField.classList.add('is-invalid');--}}
+                                                                                    {{--                        }--}}
+                                                                                {{--                    });--}}
+                                                                                {{--                }--}}
+                                                                                {{--            });--}}
+
+                                                                            {{--            // Also handle cases where form might be submitted programmatically--}}
+                                                                                {{--            const originalSubmit = form.submit;--}}
+                                                                                {{--            form.submit = function () {--}}
+                                                                                    {{--                if (validateFile()) {--}}
+                                                                                        {{--                    originalSubmit.call(form);--}}
+                                                                                        {{--                } else {--}}
+                                                                                        {{--                    imageField.focus();--}}
+                                                                                        {{--                }--}}
+                                                                                    {{--            };--}}
+                                                                                {{--        });--}}
+                                                                                {{--    </script>--}}
+{{--    <script>--}}
+    {{--        document.addEventListener('DOMContentLoaded', function () {--}}
+        {{--            const imageInput = document.querySelector('input[name="logo"]');--}}
+
+        {{--            // عناصر المعاينة--}}
+            {{--            const previewContainer = document.createElement('div');--}}
+            {{--            previewContainer.style.position = 'relative';--}}
+            {{--            previewContainer.style.display = 'none';--}}
+            {{--            previewContainer.style.marginTop = '10px';--}}
+            {{--            previewContainer.style.maxWidth = '200px';--}}
+
+            {{--            const preview = document.createElement('img');--}}
+            {{--            preview.style.width = '100%';--}}
+            {{--            preview.style.borderRadius = '6px';--}}
+            {{--            preview.style.display = 'block';--}}
+
+            {{--            const removeBtn = document.createElement('button');--}}
+            {{--            removeBtn.textContent = '✖';--}}
+            {{--            removeBtn.type = 'button';--}}
+            {{--            removeBtn.style.position = 'absolute';--}}
+            {{--            removeBtn.style.top = '4px';--}}
+            {{--            removeBtn.style.right = '4px';--}}
+            {{--            removeBtn.style.background = 'rgba(220, 53, 69, 0.9)';--}}
+            {{--            removeBtn.style.color = '#fff';--}}
+            {{--            removeBtn.style.border = 'none';--}}
+            {{--            removeBtn.style.borderRadius = '50%';--}}
+            {{--            removeBtn.style.width = '24px';--}}
+            {{--            removeBtn.style.height = '24px';--}}
+            {{--            removeBtn.style.cursor = 'pointer';--}}
+            {{--            removeBtn.style.fontSize = '14px';--}}
+            {{--            removeBtn.style.lineHeight = '22px';--}}
+            {{--            removeBtn.style.textAlign = 'center';--}}
+            {{--            removeBtn.style.padding = '0';--}}
+            {{--            removeBtn.title = 'Remove image';--}}
+
+            {{--            const errorMsg = document.createElement('div');--}}
+            {{--            errorMsg.className = 'text-danger small mt-1';--}}
+            {{--            errorMsg.style.display = 'none';--}}
+
+            {{--            previewContainer.appendChild(preview);--}}
+            {{--            previewContainer.appendChild(removeBtn);--}}
+            {{--            imageInput.parentNode.appendChild(previewContainer);--}}
+            {{--            imageInput.parentNode.appendChild(errorMsg);--}}
+
+            {{--            // عند اختيار صورة--}}
+                {{--            imageInput.addEventListener('change', function () {--}}
+                {{--                const file = this.files[0];--}}
+                {{--                previewContainer.style.display = 'none';--}}
+                {{--                errorMsg.style.display = 'none';--}}
+
+                {{--                if (file) {--}}
+                    {{--                    const reader = new FileReader();--}}
+                    {{--                    reader.onload = function (e) {--}}
+                        {{--                        preview.src = e.target.result;--}}
+                        {{--                        previewContainer.style.display = 'block';--}}
+                        {{--                    };--}}
+                    {{--                    reader.readAsDataURL(file);--}}
+                    {{--                }--}}
+                {{--            });--}}
+
+                {{--            // إزالة الصورة عند الضغط على ✖--}}
+                    {{--            removeBtn.addEventListener('click', function () {--}}
+                    {{--                imageInput.value = '';--}}
+                    {{--                preview.src = '';--}}
+                    {{--                previewContainer.style.display = 'none';--}}
+                    {{--                errorMsg.style.display = 'none';--}}
+                    {{--            });--}}
+                    {{--        });--}}
+                    {{--    </script>--}}
+
+
+{{--    start map script--}}
+{{--    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>--}}
+{{--    <script src="https://cdn.jsdelivr.net/npm/leaflet-geosearch@3.11.0/dist/bundle.min.js"></script>--}}
+{{--    <script src="{{asset('assets')}}/js/leaflet-simple-locate.min.js"></script>--}}
+{{--    <script>--}}
+    {{--        (function () {--}}
+        {{--            document.addEventListener('DOMContentLoaded', () => {--}}
+            {{--                // Get existing coordinates from the server or use default Cairo coordinates--}}
+                {{--                const defaultLat = parseFloat("{{ ${{variable}}->latitude ?? 30.0444 }}");--}}
+                {{--                const defaultLng = parseFloat("{{ ${{variable}}->longitude ?? 31.2357 }}");--}}
+                {{--                const defaultZoom = "{{ ${{variable}}->latitude ? 14 : 6 }}"; // Zoom closer if we have coordinates--}}
+
+                    {{--                const map = L.map('map').setView([defaultLat, defaultLng], defaultZoom);--}}
+                    {{--                const mapContainer = document.getElementById('map');--}}
+                    {{--                const latitudeInput = document.getElementById('latitude');--}}
+                    {{--                const longitudeInput = document.getElementById('longitude');--}}
+                    {{--                const locationInput = document.getElementById('location');--}}
+                    {{--                errorDiv = null;--}}
+
+                    {{--                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {--}}
+                        {{--                    attribution: '© OpenStreetMap contributors',--}}
+                        {{--                }).addTo(map);--}}
+
+                    {{--                let marker;--}}
+                    {{--                let hasPinnedLocation = Boolean("{{ ${{variable}}->latitude ?? false }}");--}}
+
+                    {{--                // If we have existing coordinates, create a marker immediately--}}
+                        {{--                if (hasPinnedLocation) {--}}
+                        {{--                    marker = L.marker([defaultLat, defaultLng]).addTo(map)--}}
+                        {{--                        .bindPopup('Saved location').openPopup();--}}
+                        {{--                    latitudeInput.value = defaultLat;--}}
+                        {{--                    longitudeInput.value = defaultLng;--}}
+                        {{--                    locationInput.value = 'Saved location';--}}
+                        {{--                }--}}
+
+                        {{--                // Function to update location validation state--}}
+                            {{--                function updateLocationValidation() {--}}
+                            {{--                    if (!hasPinnedLocation) {--}}
+                                {{--                        mapContainer.classList.add('is-invalid');--}}
+                                {{--                    } else {--}}
+                                {{--                        mapContainer.classList.remove('is-invalid');--}}
+                                {{--                    }--}}
+                            {{--                }--}}
+
+                            {{--                // Function to handle location pinning--}}
+                                {{--                function handleLocationPinned(lat, lng, label) {--}}
+                                {{--                    if (marker) map.removeLayer(marker);--}}
+                                {{--                    marker = L.marker([lat, lng]).addTo(map)--}}
+                                {{--                        .bindPopup(label || 'Selected location').openPopup();--}}
+
+                                {{--                    latitudeInput.value = lat;--}}
+                                {{--                    longitudeInput.value = lng;--}}
+                                {{--                    locationInput.value = label || 'Manual click';--}}
+
+                                {{--                    hasPinnedLocation = true;--}}
+                                {{--                    updateLocationValidation();--}}
+
+                                {{--                    // Remove error message if it exists--}}
+                                    {{--                    if (errorDiv) {--}}
+                                    {{--                        errorDiv.remove();--}}
+                                    {{--                        errorDiv = null;--}}
+                                    {{--                    }--}}
+                                    {{--                }--}}
+
+                                    {{--                // SimpleLocate button--}}
+                                        {{--                // new L.Control.SimpleLocate({--}}
+                                        {{--                //     position: 'topleft',--}}
+                                        {{--                //     className: 'button-locate',--}}
+                                        {{--                //     setViewAfterClick: true,--}}
+                                        {{--                //     zoomLevel: 14,--}}
+                                        {{--                //     drawCircle: true,--}}
+                                        {{--                //     afterClick: (result) => {--}}
+                                        {{--                //         const lat = result.coords.latitude;--}}
+                                        {{--                //         const lng = result.coords.longitude;--}}
+                                        {{--                //         handleLocationPinned(lat, lng, 'Located via button');--}}
+                                        {{--                //     },--}}
+                                        {{--                // }).addTo(map);--}}
+
+                                        {{--                // Browser geolocation (only if we don't have saved coordinates)--}}
+                                        {{--                if (navigator.geolocation && !hasPinnedLocation) {--}}
+                                        {{--                    navigator.geolocation.getCurrentPosition(--}}
+                                        {{--                        (position) => {--}}
+                                            {{--                            const {latitude, longitude} = position.coords;--}}
+                                            {{--                            map.setView([latitude, longitude], 14);--}}
+                                            {{--                            handleLocationPinned(latitude, longitude, 'Current location');--}}
+                                            {{--                        },--}}
+                                        {{--                        (error) => {--}}
+                                            {{--                            console.warn('Geolocation not allowed:', error);--}}
+                                            {{--                            updateLocationValidation();--}}
+                                            {{--                        }--}}
+                                        {{--                    );--}}
+                                        {{--                }--}}
+
+                                        {{--                // Manual click selection--}}
+                                            {{--                map.on('click', function (e) {--}}
+                                            {{--                    const lat = e.latlng.lat;--}}
+                                            {{--                    const lng = e.latlng.lng;--}}
+                                            {{--                    handleLocationPinned(lat, lng);--}}
+                                            {{--                });--}}
+
+                                            {{--                // GeoSearch integration--}}
+                                                {{--                setTimeout(() => {--}}
+                                                {{--                    if (window.GeoSearch) {--}}
+                                                    {{--                        const provider = new GeoSearch.OpenStreetMapProvider();--}}
+                                                    {{--                        const searchControl = new GeoSearch.GeoSearchControl({--}}
+                                                        {{--                            provider: provider,--}}
+                                                        {{--                            style: 'bar',--}}
+                                                        {{--                            autoClose: true,--}}
+                                                        {{--                            showMarker: false,--}}
+                                                        {{--                            retainZoomLevel: false,--}}
+                                                        {{--                            searchLabel: 'Search for a place...',--}}
+                                                        {{--                            keepResult: true,--}}
+                                                        {{--                        });--}}
+                                                    {{--                        map.addControl(searchControl);--}}
+                                                    {{--                    }--}}
+                                                {{--                }, 500);--}}
+
+                                                {{--                // Handle search result--}}
+                                                    {{--                map.on('geosearch/showlocation', function (result) {--}}
+                                                    {{--                    const {x: lng, y: lat, label} = result.location;--}}
+                                                    {{--                    map.setView([lat, lng], 14);--}}
+                                                    {{--                    handleLocationPinned(lat, lng, label);--}}
+                                                    {{--                });--}}
+
+                                                    {{--                // Form submission validation--}}
+                                                        {{--                const form = document.querySelector('form');--}}
+                                                        {{--                if (form) {--}}
+                                                            {{--                    form.addEventListener('submit', function (e) {--}}
+                                                                {{--                        if (!hasPinnedLocation) {--}}
+                                                                    {{--                            e.preventDefault();--}}
+                                                                    {{--                            e.stopPropagation();--}}
+                                                                    {{--                            mapContainer.classList.add('is-invalid');--}}
+
+                                                                    {{--                            if (!errorDiv) {--}}
+                                                                        {{--                                errorDiv = document.createElement('div');--}}
+                                                                        {{--                                errorDiv.className = 'map-error-message text-danger mt-2';--}}
+                                                                        {{--                                errorDiv.textContent = 'Please select a location on the map';--}}
+                                                                        {{--                                mapContainer.appendChild(errorDiv);--}}
+                                                                        {{--                            }--}}
+
+                                                                    {{--                            mapContainer.scrollIntoView({--}}
+                                                                        {{--                                behavior: 'smooth',--}}
+                                                                        {{--                                block: 'center'--}}
+                                                                        {{--                            });--}}
+                                                                    {{--                        }--}}
+                                                                {{--                    });--}}
+                                                            {{--                }--}}
+
+                                                        {{--                // Initial validation check--}}
+                                                            {{--                updateLocationValidation();--}}
+                                                            {{--            });--}}
+                                                            {{--        })();--}}
+                                                        {{--    </script>--}}
+{{--    end map script--}}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const countrySelect = document.getElementById('country_div');
+        const citySelect = document.getElementById('city_div');
+        const districtSelect = document.getElementById('district_id');
+
+        const TXT = {
+            chooseCountry: `@lang('dashboard.choose_country')`,
+            chooseCountryFirst: `@lang('dashboard.choose_country_first')`,
+            chooseCityFirst: `@lang('dashboard.choose_city_first')`,
+            chooseCity: `@lang('dashboard.choose_city')`,
+            chooseDistrict: `@lang('dashboard.choose_district')`,
+            loading: `@lang('dashboard.loading')`,
+            noCities: `@lang('dashboard.no_cities')`,
+            noDistricts: `@lang('dashboard.no_districts')`,
+            countriesLoadError: `@lang('dashboard.countries_load_error')`,
+        };
+
+        // قيم التهيئة: old() أولًا ثم قيم الموديل (صفحة Edit)
+        const initialCountry = "{{ old('country_id',  ${{variable}}->country_id  ?? '') }}";
+        const initialCity = "{{ old('city_id',     ${{variable}}->city_id     ?? '') }}";
+        const initialDistrict = "{{ old('district_id', ${{variable}}->district_id ?? '') }}";
+
+        // Helpers
+        const setCountryPlaceholder = (t) => countrySelect.innerHTML = `<option disabled selected value="">${t}</option>`;
+        const setCityPlaceholder = (t) => {
+            citySelect.innerHTML = `<option disabled selected value="">${t}</option>`;
+            citySelect.disabled = true;
+        };
+        const setDistrictPlaceholder = (t) => {
+            districtSelect.innerHTML = `<option disabled selected value="">${t}</option>`;
+            districtSelect.disabled = true;
+        };
+        const enable = (el) => el.disabled = false;
+
+        const normalizeList = (payload) => {
+            if (Array.isArray(payload)) return payload;
+            if (payload && Array.isArray(payload.data)) return payload.data;
+            if (payload && Array.isArray(payload.items)) return payload.items;
+            if (payload && typeof payload === 'object') return Object.values(payload);
+            return [];
+        };
+
+        // تحميل الدول
+        async function loadCountries(selectedId = null) {
+            setCountryPlaceholder(TXT.loading);
+            try {
+                const res = await fetch(`{{ route('{{dashboard_small}}.dashboard.admin.country.ddl') }}`, {headers: {'Accept': 'application/json'}});
+                const data = normalizeList(await res.json());
+
+                countrySelect.innerHTML = `<option disabled value="">${TXT.chooseCountry}</option>`;
+                data.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = c.name;
+                    if (String(selectedId ?? '') === String(c.id)) opt.selected = true;
+                    countrySelect.appendChild(opt);
+                });
+
+                if (!countrySelect.value) {
+                    countrySelect.selectedIndex = 0;
+                    countrySelect.options[0].selected = true;
+                }
+            } catch (e) {
+                console.error('Countries error:', e);
+                setCountryPlaceholder(TXT.countriesLoadError);
+            }
         }
 
-        imageField.addEventListener('change', function () {
-            const file = imageField.files[0];
-            let isValid = true;
+        // تحميل المدن لدولة
+        async function loadCities(countryId, selectedId = null) {
+            if (!countryId) {
+                setCityPlaceholder(TXT.chooseCountryFirst);
+                setDistrictPlaceholder(TXT.chooseCityFirst);
+                return;
+            }
+            setCityPlaceholder(TXT.loading);
+            setDistrictPlaceholder(TXT.chooseCityFirst);
 
-            // Reset any previous error state
-            errorMessage.innerHTML = '';
-            errorMessage.style.display = 'none';
-            imageField.classList.remove('is-invalid');
+            try {
+                const res = await fetch(`/dashboard/ddl/cities/${countryId}`, {headers: {'Accept': 'application/json'}});
+                const data = normalizeList(await res.json());
 
-            if (!file) {
-                if (required) {
-                    isValid = false;
-                    errorMessage.innerHTML = requiredMessage;
+                enable(citySelect);
+                citySelect.innerHTML = `<option disabled value="">${TXT.chooseCity}</option>`;
+                data.forEach(city => {
+                    const opt = document.createElement('option');
+                    opt.value = city.id;
+                    opt.textContent = city.name;
+                    if (String(selectedId ?? '') === String(city.id)) opt.selected = true;
+                    citySelect.appendChild(opt);
+                });
+
+                if (!citySelect.value) {
+                    citySelect.selectedIndex = 0;
+                    citySelect.options[0].selected = true;
+                }
+
+                if (typeof validator !== 'undefined' && typeof validator.revalidateField === 'function') {
+                    validator.revalidateField('[name="city_id"]');
+                }
+            } catch (e) {
+                console.error('Cities error:', e);
+                setCityPlaceholder(TXT.noCities);
+            }
+        }
+
+        // جلب الأحياء بمسارين (أساسي + احتياطي إن تغيّر المسار)
+        async function fetchDistrictsWithFallback(cityId) {
+            try {
+                const r1 = await fetch(`/dashboard/ddl/district/${cityId}`, {headers: {'Accept': 'application/json'}});
+                if (!r1.ok) throw new Error('primary endpoint not ok: ' + r1.status);
+                return normalizeList(await r1.json());
+            } catch (e1) {
+                console.warn('Primary districts endpoint failed, trying fallback…', e1);
+                const r2 = await fetch(`/dashboard/cities/${cityId}/districts`, {headers: {'Accept': 'application/json'}});
+                if (!r2.ok) throw new Error('fallback endpoint not ok: ' + r2.status);
+                return normalizeList(await r2.json());
+            }
+        }
+
+        // تحميل الأحياء لمدينة
+        async function loadDistricts(cityId, selectedId = null) {
+            if (!cityId) {
+                setDistrictPlaceholder(TXT.chooseCityFirst);
+                return;
+            }
+            setDistrictPlaceholder(TXT.loading);
+
+            try {
+                const data = await fetchDistrictsWithFallback(cityId);
+
+                enable(districtSelect);
+                districtSelect.innerHTML = `<option disabled value="">${TXT.chooseDistrict}</option>`;
+                data.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d.id;
+                    opt.textContent = d.name;
+                    if (String(selectedId ?? '') === String(d.id)) opt.selected = true;
+                    districtSelect.appendChild(opt);
+                });
+
+                if (!districtSelect.value) {
+                    districtSelect.selectedIndex = 0;
+                    districtSelect.options[0].selected = true;
+                }
+
+                if (typeof validator !== 'undefined' && typeof validator.revalidateField === 'function') {
+                    validator.revalidateField('[name="district_id"]');
+                }
+            } catch (e) {
+                console.error('Districts error:', e);
+                setDistrictPlaceholder(TXT.noDistricts);
+            }
+        }
+
+        // تغيّر الدولة
+        countrySelect.addEventListener('change', async function () {
+            const cId = this.value || '';
+            await loadCities(cId, null);
+
+            // لو أول مدينة اتحددت تلقائيًا
+            const firstCityId = citySelect.value;
+            if (firstCityId) {
+                await loadDistricts(firstCityId, null);
+            } else {
+                setDistrictPlaceholder(TXT.chooseCityFirst);
+            }
+        });
+        // تغيّر المدينة
+        citySelect.addEventListener('change', function () {
+            const cityId = this.value || '';
+            loadDistricts(cityId, null);
+        });
+
+        // تهيئة أولية (تحافظ على old()/قِيَم الموديل في صفحة Edit)
+        (async function hydrate() {
+            await loadCountries(initialCountry);
+            if (initialCountry) {
+                await loadCities(initialCountry, initialCity);
+                if (initialCity) {
+                    await loadDistricts(initialCity, initialDistrict);
+                } else {
+                    setDistrictPlaceholder(TXT.chooseCityFirst);
                 }
             } else {
-                const fileExt = '.' + file.name.split('.').pop().toLowerCase();
-                if (!allowedTypes.includes(fileExt)) {
-                    isValid = false;
-                    {{--errorMessage.innerHTML = `@lang('{{base_namespace_small}}.file_error', ['type' => '.png, .jpg, .jpeg', 'size' => '5MB'])`;--}}
-                } else if (file.size > maxSize) {
-                    isValid = false;
-                    {{--errorMessage.innerHTML = `@lang('{{base_namespace_small}}.file_error', ['type' => '.png, .jpg, .jpeg', 'size' => '5MB'])`;--}}
-                }
+                setCityPlaceholder(TXT.chooseCountryFirst);
+                setDistrictPlaceholder(TXT.chooseCityFirst);
             }
-
-            if (!isValid) {
-                imageField.classList.add('is-invalid');
-                errorMessage.style.display = 'block';
-            }
-        });
+        })();
     });
 </script>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const slugInput = document.querySelector('input[name="slug"]');
-        const titleInput = document.querySelector('input[name="title_en"]');
-
-        let isSlugEditedManually = false;
-
-        slugInput.addEventListener('input', function () {
-            isSlugEditedManually = false;
-
-            this.value = this.value
-                .replace(/\s+/g, '-')
-                .replace(/-+/g, '-')
-                .replace(/[^a-zA-Z0-9\-]/g, '')
-                .toLowerCase();
-        });
-
-        function generateSlug(text) {
-            return text
-                .toString()
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, '')
-                .replace(/[^\w\s-]/g, '')
-                .trim()
-                .replace(/\s+/g, '-')
-                .toLowerCase();
-        }
-
-        titleInput.addEventListener('input', function () {
-            if (!isSlugEditedManually) {
-                slugInput.value = generateSlug(this.value);
-            }
-        });
-    });
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const fileInput = document.getElementById('mainImageInput');
-        const previewContainer = document.getElementById('mainImagePreview');
-        const previewImg = document.getElementById('mainImagePreviewImg');
-        const previewLink = document.getElementById('mainImageLink');
-        const removeBtn = document.getElementById('mainImageRemoveBtn');
-        const removeFlag = document.getElementById('mainImageRemoveFlag');
-        const imageError = document.getElementById('mainImageSizeError');
-
-        fileInput.addEventListener('change', function () {
-            const file = this.files[0];
-            imageError.classList.add('d-none');
-            imageError.style.display = 'none';
-
-            if (file) {
-                {{--const maxSize = 5 * 1024 * 1024;--}}
-                {{--const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];--}}
-
-                {{--if (!allowedTypes.includes(file.type)) {--}}
-                    {{--    fileInput.value = '';--}}
-                    {{--    imageError.textContent = "@lang('{{base_namespace_small}}.invalid_image_type')";--}}
-                    {{--    imageError.classList.remove('d-none');--}}
-                    {{--    imageError.style.display = 'block';--}}
-                    {{--    return;--}}
-                    {{--}--}}
-
-                {{--if (file.size > maxSize) {--}}
-                    {{--    fileInput.value = '';--}}
-                    {{--    imageError.textContent = "@lang('{{base_namespace_small}}.image_size_error')";--}}
-                    {{--    imageError.classList.remove('d-none');--}}
-                    {{--    imageError.style.display = 'block';--}}
-                    {{--    return;--}}
-                    {{--}--}}
-
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    previewImg.src = e.target.result;
-                    previewLink.href = e.target.result;
-                    previewContainer.style.display = 'block';
-                    removeFlag.value = '0';
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        if (removeBtn) {
-            removeBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                previewImg.src = '';
-                previewLink.href = '#';
-                previewContainer.style.display = 'none';
-                fileInput.value = '';
-                removeFlag.value = '1';
-            });
-        }
-    });
-</script>
 @endsection

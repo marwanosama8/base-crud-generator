@@ -27,25 +27,27 @@ class {{singular}}Repository extends BaseRepository implements {{singular}}Repos
     public function all(Request $request, string $sessionKey, $isExport = false)
     {
         $perPage = $this->getPerPage($request, $sessionKey);
-
+        $page    = max(1, (int) $request->input('page', 1));
+        // we need to apply our  local scops ( e.g: approved() or active() )
         $query = $this->{{variable}}->withoutTrashed();
 
-            $query->whereDoesntHave('roles', function ($q) {
-                $q->where('name', 'super_admin');
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+
+            $query->where(function ($q) use ($search) {
+                    // TODO :: here are translated columns in translate table
+                $q->whereHas('translations', function ($t) use ($search) {
+                    // columns ...
+                    $t->where('full_name', 'like', '%' . $search . '%');
+                })
+                    // TODO :: here are local table columns
+                    ->orWhere('email', 'like', '%' . $search . '%')
+                    ->orWhere('phone', 'like', '%' . $search . '%');
             });
-            $query->where('id', '!=', auth()->id());
+        }
 
-            if ($request->filled('search')) {
-                $query->where(function ($q) use ($request) {
-                    $q->orWhere('first_name', 'like', '%' . $request->search . '%');
-                    $q->orWhere('email', 'like', '%' . $request->search . '%');
-                    $q->orWhere('mobile', 'like', '%' . $request->search . '%');
-                    $q->orWhereHas('roles', function ($roleQuery) use ($request) {
-                        $roleQuery->where('name', 'like', '%' . $request->search . '%');
-                    });
-                });
-            }
-
+            // TODO :: here are boolean filters in local column table
             if ($request->filled('status')) {
                 if($request->status == 'active'){
                     $query->where('is_active', true);
@@ -54,11 +56,9 @@ class {{singular}}Repository extends BaseRepository implements {{singular}}Repos
                 }
             }
 
-            if($isExport){
-                return $query->get();
-            }
-
-            return $query->paginate($perPage)->withQueryString();
+        return $query
+            ->paginate($perPage, ['*'], 'page', $page)
+            ->withQueryString();
         }
 
     public function export($request, string $sessionKey)
@@ -87,23 +87,26 @@ class {{singular}}Repository extends BaseRepository implements {{singular}}Repos
         abort(400, 'Invalid export request');
     }
 
-    public function getRole(): ?Collection
-    {
-        return Role::where('guard_name', '{{base_namespace_small}}')
-            ->where('is_active', 1)
-            ->where('name', '!=', 'super_admin')
-            ->get();
-    }
-
-    public function getCountry(): ?Collection
-    {
-        return Country::withoutTrashed()->get();
-    }
-
-    public function getActiveScopedCountry(): ?Collection
-    {
-        return Country::withoutTrashed()->active()->get();
-    }
+    // TODO :: here are queries that might be usable
+    //    public function getRole(): ?Collection
+    //    {
+    //        return Role::where('guard_name', '{{base_namespace_small}}')
+    //            ->where('is_active', 1)
+    //            ->where('name', '!=', 'super_admin')
+    //            ->get();
+    //    }
+    //    public function getCountry(): ?Collection
+    //    {
+    //        return Country::withoutTrashed()->get();
+    //    }
+    //    public function getActiveScopedCountry(): ?Collection
+    //    {
+    //        return Country::withoutTrashed()->active()->get();
+    //    }
+    //    public function getTrashedCount(): int
+    //    {
+    //        return $this->{{variable}}->onlyTrashed()->where('is_force_delete', false)->count();
+    //    }
 
     public function add($request): ?bool
     {
@@ -113,8 +116,10 @@ class {{singular}}Repository extends BaseRepository implements {{singular}}Repos
             unset($data['image']);
             ${{variable}} = $this->{{variable}}->create($data);
 
-                $this->addImage($request, ${{variable}}, 'image');
-                ${{variable}}->assignRole($data['role']);
+            // TODO :: logic that runs after insertion
+            // you must set the collection_name and filed name in this new helper function
+            // $this->addImageFromRequest($request, ${{variable}}, 'licence_document', 'image');
+
 
                 DB::commit();
                 return (bool)${{variable}};
@@ -129,26 +134,25 @@ class {{singular}}Repository extends BaseRepository implements {{singular}}Repos
         return $this->find($uuid)->delete();
     }
 
-    public function getTrashedCount(): int
-    {
-        return $this->{{variable}}->onlyTrashed()->where('is_force_delete', false)->count();
-    }
-
     public function getArchived(Request $request, string $sessionKey): ?LengthAwarePaginator
     {
         $perPage = $this->getPerPage($request, $sessionKey);
 
         $query = $this->{{variable}}->onlyTrashed()->where('is_force_delete', false);
-            if ($request->filled('search')) {
-                $query->where(function ($q) use ($request) {
-                    $q->orWhere('first_name', 'like', '%' . $request->search . '%');
-                    $q->orWhere('email', 'like', '%' . $request->search . '%');
-                    $q->orWhere('mobile', 'like', '%' . $request->search . '%');
-                    $q->orWhereHas('roles', function ($roleQuery) use ($request) {
-                        $roleQuery->where('name', 'like', '%' . $request->search . '%');
-                    });
-                });
-            }
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+
+            $query->where(function ($q) use ($search) {
+                // TODO :: here are translated columns in translate table
+                $q->whereHas('translations', function ($t) use ($search) {
+                    // columns ...
+                    $t->where('full_name', 'like', '%' . $search . '%');
+                })
+                    // TODO :: here are local table columns
+                    ->orWhere('email', 'like', '%' . $search . '%')
+                    ->orWhere('phone', 'like', '%' . $search . '%');
+            });
+        }
 
         return $query->paginate($perPage)->withQueryString();
     }
@@ -158,14 +162,22 @@ class {{singular}}Repository extends BaseRepository implements {{singular}}Repos
         DB::beginTransaction();
         try {
             ${{variable}} = $this->findOnlyTrashed($uuid);
+
+                // TODO:: logic happen after force delete
+
+                // collection_name must be carefully setted
                 $this->deleteMedia(${{variable}}, 'image');
-                ${{variable}}->syncRoles([]);
+
                 $result = ${{variable}}->update([
-                'mobile' => generateTimestampCode() . '-' . ${{variable}}->mobile,
-                    'identity' => generateTimestampCode() . '-' . ${{variable}}->identity,
-                    'email' => generateTimestampCode() . '-' . ${{variable}}->email,
+                    // 'mobile' => generateTimestampCode() . '-' . ${{variable}}->mobile,
+                //    'identity' => generateTimestampCode() . '-' . ${{variable}}->identity,
+                //    'email' => generateTimestampCode() . '-' . ${{variable}}->email,
                     'is_force_delete' => true,
                 ]);
+
+                // role toggling if necessary
+                // ${{variable}}->syncRoles([]);
+
                 DB::commit();
                 return (bool)$result;
             } catch (\Exception $e) {
@@ -180,20 +192,29 @@ class {{singular}}Repository extends BaseRepository implements {{singular}}Repos
         try {
             $data = $request->validated();
 
-            if (is_null($data['password'])) {
-                unset($data['password']);
-            }
+            // setting all data for updating
+            // if (is_null($data['password'])) {
+            //    unset($data['password']);
+            // }
 
-            unset($data['image'], $data['confirm_password']);
+            unset(
+                $data['image'],
+                // $data['confirm_password']
+            );
+
 
             ${{variable}} = tap($this->find($uuid))?->update($data);
 
-                $this->updateImage($request, ${{variable}}, 'image');
-                ${{variable}}->syncRoles($data['role'] ?? []);
+            // updateing the translated table if exists
+            // addOrUpdateTranslations($culturalEntity, $data, ['full_name']);
 
-                if ($request->input('remove_image') == '1') {
-                    $this->deleteMedia(${{variable}}, 'image');
-                }
+            // TODO :: logic runs after update
+            if ($request->input('remove_image') == '1') {
+                $culturalEntity->getMedia('licence_document')->each->delete();
+            }
+
+            // you must set the collection_name and filed name in this new helper function
+            $this->addImageFromRequest($request, ${{variable}}, 'licence_document', 'image');
 
                 DB::commit();
                 return (bool)${{variable}};

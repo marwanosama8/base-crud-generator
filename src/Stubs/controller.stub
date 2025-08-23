@@ -1,13 +1,13 @@
 <?php
 
-namespace {{namespace}}Http\Controllers\{{base_namespace_small}};
+namespace {{namespace}}Http\Controllers\{{base_namespace_capital}}\{{dashboard_capital}};
 
 use {{namespace}}Http\Controllers\Controller;
 use {{namespace}}Models\{{singular}};
 use {{namespace}}Models\Role;
 use {{namespace}}Repositories\Interfaces\{{singular}}RepositoryInterface;
 use {{namespace}}Http\Requests\{{singular}}\Store{{singular}}Request;
-use Illuminate\Routing\Controllers\Middleware;
+use App\Models\CulturalEntity;use Illuminate\Routing\Controllers\Middleware;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use {{namespace}}Http\Requests\{{singular}}\Update{{singular}}Request;
 use Illuminate\Http\Request;
@@ -34,20 +34,38 @@ class {{singular}}Controller extends Controller
     {
         $perPageSessionKey = 'per_page_{{variable}}';
 
+        ${{snakePlural}} = $this->repository->all($request, $perPageSessionKey);
+
+        $requestedPage = max(1, (int) $request->input('page', 1));
+        $lastPage      = max(1, (int) ${{snakePlural}}->lastPage());
+
         if ($request->filled('export')) {
             return $this->repository->export($request, $perPageSessionKey);
         }
-        $trashedCount = $this->repository->getTrashedCount();
-        $roles = Role::active()->get();
+
+        // if this CRUD has archive records
+        // $trashedCount = $this->repository->getTrashedCount();
+
+        // other queries
+        // $roles = Role::active()->get();
+
+        if ($requestedPage > 1 && ($requestedPage > $lastPage || ${{snakePlural}}->isEmpty())) {
+            return redirect()->to(
+                $request->fullUrlWithQuery(['page' => $lastPage])
+            );
+        }
+
         ${{snakePlural}} = $this->repository->all($request, $perPageSessionKey);
-        return view('{{base_namespace_small}}.{{snakePlural}}.index', get_defined_vars());
+        return view('{{base_namespace_small}}.{{dashboard_small}}.{{snakePlural}}.index', get_defined_vars());
     }
 
     public function store(Store{{singular}}Request $request)
     {
         ${{variable}} = $this->repository->add($request);
         if (${{variable}}) {
-            return redirect()->route('{{base_namespace_small}}.{{snakePlural}}.index')
+            // TODO:: after creation
+
+            return redirect()->route('{{dashboard_small}}.{{base_namespace_small}}.{{snakePlural}}.index')
                 ->with('toast_success', __('{{base_namespace_small}}.created_successfully'));
         }
         return redirect()->back()
@@ -55,25 +73,29 @@ class {{singular}}Controller extends Controller
     }
     public function create()
     {
-        $countries = $this->repository->getActiveScopedCountry();
-        $roles = $this->repository->getRole();
-        return view('{{base_namespace_small}}.{{snakePlural}}.create', get_defined_vars());
+        // queries might be usbale
+        // $countries = $this->reposito ry->getActiveScopedCountry();
+        // $roles = $this->repository->getRole();
+        return view('{{base_namespace_small}}.{{dashboard_small}}.{{snakePlural}}.create', get_defined_vars());
     }
 
     public function edit({{singular}} ${{variable}})
     {
-        $countries = $this->repository->getActiveScopedCountry();
-        $roles = $this->repository->getRole();
-        $selectedCountryId = ${{variable}}->country_id;
-        $selectedNationalityId = ${{variable}}->nationality_id;
-        return view('{{base_namespace_small}}.{{snakePlural}}.edit', get_defined_vars());
+        // queries might be usbale
+
+        // $countries = $this->repository->getActiveScopedCountry();
+        // $roles = $this->repository->getRole();
+        // $selectedCountryId = ${{variable}}->country_id;
+        // $selectedNationalityId = ${{variable}}->nationality_id;
+
+        return view('{{base_namespace_small}}.{{dashboard_small}}.{{snakePlural}}.edit', get_defined_vars());
     }
 
     public function update(Update{{singular}}Request $request, string $uuid)
     {
         $result = $this->repository->update($uuid, $request);
         if ($result) {
-            return redirect()->route('{{base_namespace_small}}.{{snakePlural}}.index')
+            return redirect()->route('{{dashboard_small}}.{{base_namespace_small}}.{{snakePlural}}.index')
                 ->with('toast_success', __('{{base_namespace_small}}.updated_successfully'));
         }
         return redirect()->back()
@@ -92,16 +114,15 @@ class {{singular}}Controller extends Controller
 
     public function archive(Request $request)
     {
-
         $perPageSessionKey = 'per_page_{{snakePlural}}';
         $archived{{plural}} = $this->repository->getArchived($request, $perPageSessionKey);
-        return view('{{base_namespace_small}}.{{snakePlural}}.archived', get_defined_vars());
+        return view('{{base_namespace_small}}.{{dashboard_small}}.{{snakePlural}}.archived', get_defined_vars());
     }
 
     public function restore($uuid)
     {
         $this->repository->restore($uuid);
-        return redirect()->route('{{base_namespace_small}}.{{snakePlural}}.archive')
+        return redirect()->route('{{dashboard_small}}.{{base_namespace_small}}.{{snakePlural}}.archive')
             ->with('toast_success', __('{{base_namespace_small}}.restored_successfully'));
     }
 
@@ -109,10 +130,10 @@ class {{singular}}Controller extends Controller
     {
         $result = $this->repository->forceDelete($uuid);
         if ($result) {
-            return redirect()->route('{{base_namespace_small}}.{{snakePlural}}.archive')
+            return redirect()->route('{{dashboard_small}}.{{base_namespace_small}}.{{snakePlural}}.archive')
                 ->with('toast_success', lang('{{base_namespace_small}}.deleted_successfully'));
         }
-        return redirect()->route('{{base_namespace_small}}.{{snakePlural}}.archive')
+        return redirect()->route('{{dashboard_small}}.{{base_namespace_small}}.{{snakePlural}}.archive')
             ->with('toast_error', __('{{base_namespace_small}}.something_went_wrong'));
 
     }
@@ -128,6 +149,10 @@ class {{singular}}Controller extends Controller
         ${{variable}}->save();
 
         return redirect()->back()->with('toast_success', __('{{base_namespace_small}}.updated_successfully'));
+    }
 
+    public function show(CulturalEntity $culturalEntity)
+    {
+        return view('{{base_namespace_small}}.{{dashboard_small}}.{{snakePlural}}.show', get_defined_vars());
     }
 }

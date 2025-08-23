@@ -1,6 +1,37 @@
-@extends('components.layouts.{{base_namespace_small}}.master')
+@extends('components.{{dashboard_small}}.layouts.{{base_namespace_small}}.master')
 @section('title')
 @lang('{{base_namespace_small}}.add_{{variable}}')
+@endsection
+@section('style')
+{{--  map style  --}}
+
+{{-- <style>
+    .map-error {
+        display: none;
+        color: rgb(184, 17, 17);
+        font-size: 0.875rem;
+        margin-top: 5px;
+        border-radius: 0.25rem;
+    }
+
+    .leaflet-touch .leaflet-geosearch-bar form input {
+        padding: 10px;
+    }
+    #map.is-invalid {
+        border: 2px solid rgb(184, 17, 17);
+        border-radius: 0.25rem;
+    }
+</style> --}}
+
+{{--  map scripts  --}}
+{{--    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>--}}
+{{--    <!-- Esri Geocoder CSS -->--}}
+{{--    <link--}}
+{{--        rel="stylesheet"--}}
+{{--        href="https://unpkg.com/leaflet-geosearch@3.0.0/dist/geosearch.css"--}}
+{{--    />--}}
+{{--    <link rel="stylesheet" href="{{asset('assets')}}/css/simple-locate-demo.css">--}}
+
 @endsection
 
 @section('content')
@@ -17,12 +48,12 @@
                         @lang('{{base_namespace_small}}.add_{{variable}}')
                     </div>
                     <div class="breadcrumb-container">
-                        <a href="{{ route('{{base_namespace_small}}.{{base_namespace_small}}') }}"
+                        <a href="{{ route('{{dashboard_small}}.{{base_namespace_small}}.{{base_namespace_small}}') }}"
                            class="breadcrumb-item breadcrumb-link"
                         ></a>
                         @lang('{{base_namespace_small}}.home')
                         <i class="fas fa-chevron-right rotate_button"></i>
-                        <a href="{{ route('{{base_namespace_small}}.{{snakePlural}}.index') }}"
+                        <a href="{{ route('{{dashboard_small}}.{{base_namespace_small}}.{{snakePlural}}.index') }}"
                            class="breadcrumb-item breadcrumb-link-home"
                         >@lang('{{base_namespace_small}}.{{snakePlural}}')</a>
                         <i class="fas fa-chevron-right rotate_button"></i>
@@ -37,332 +68,236 @@
         <!-- End:: Header Section -->
 
         <div class="white_block  mt-5">
-            <form class="row" action="{{ route('{{base_namespace_small}}.{{snakePlural}}.store') }}" method="POST"
-                  enctype="multipart/form-data" data-validate id="{{variable}}CreateForm">
+            <form class="row" action="{{ route('{{dashboard_small}}.{{base_namespace_small}}.{{snakePlural}}.store') }}" method="POST"
+                  enctype="multipart/form-data" data-validate id="culturalEntityCreateForm">
                 @csrf
+                {{--                full name ar--}}
                 <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label"
-                           data-i18n="labels.client_name">@lang('{{base_namespace_small}}.first_name')</label>
-                    <input type="text"
-                           name="first_name"
-                           value="{{old('first_name')}}"
-                           placeholder="@lang('{{base_namespace_small}}.first_name')"
+                    <label class="form-label">@lang('dashboard.arabic_full_name')</label>
+                    <input type="text" data-error-emoji="{{__('dashboard.no-emoji')}}"
                            class="form-control form-control-lg"
-                           maxlength="30"
+                           name="full_name_ar"
                            required
-                           data-error-required="{{ __('{{base_namespace_small}}.first_name_required') }}"
-                           data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
-                           data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
+                           value="{{old('full_name_ar')}}"
+                           data-error-minlength="{{ __('dashboard.min_length') . 2 }}"
+                           data-error-html="{{ __('dashboard.no_html_tags') }}"
+                           data-error-required="{{ __('dashboard.this_field_is_required') }}"
                            minlength="2"
-                    >
-                    <div class="text-danger small mt-1">
-                        @error('first_name')
-                        {{ $message }}
-                        @enderror
-                    </div>
-
-                </div>
-                <!--  National Field -->
-
-                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label"
-                           data-i18n="labels.client_name">@lang('{{base_namespace_small}}.second_name')</label>
-                    <input type="text"
-                           name="second_name"
-                           value="{{old('second_name')}}"
-                           placeholder="@lang('{{base_namespace_small}}.second_name')"
-                           class="form-control form-control-lg"
-                           maxlength="30"
-                           minlength="2"
-                           data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
-                           data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
-                    >
-                    <div class="text-danger small mt-1">
-                        @error('second_name')
-                        {{ $message }}
-                        @enderror
-                    </div>
-
-                </div>
-
-
-                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label"
-                           data-i18n="labels.client_name">@lang('{{base_namespace_small}}.third_name')</label>
-                    <input type="text"
-                           name="third_name"
-                           value="{{old('third_name')}}"
-                           placeholder="@lang('{{base_namespace_small}}.third_name')"
-                           class="form-control form-control-lg"
-                           data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
-                           data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
-                           maxlength="30"
-                           minlength="2"
-                    >
-                    <div class="text-danger small mt-1">
-                        @error('third_name')
-                        {{ $message }}
-                        @enderror
-                    </div>
-
-                </div>
-
-                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label"
-                    >@lang('{{base_namespace_small}}.last_name')</label>
-                    <input type="text"
-                           name="last_name"
-                           required
-                           value="{{old('last_name')}}"
-                           placeholder="@lang('{{base_namespace_small}}.last_name')"
-                           class="form-control form-control-lg"
-                           data-error-required="{{ __('{{base_namespace_small}}.last_name_required') }}"
-                           data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
-                           data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
-                           maxlength="30"
-                           min="2"
-                    >
-                    <div class="text-danger small mt-1">
-                        @error('last_name')
-                        {{ $message }}
-                        @enderror
-                    </div>
-
-                </div>
-                <!--  National Field -->
-
-                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label"
-                    >@lang('{{base_namespace_small}}.full_name')</label>
-                    <input type="text"
-                           required
-                           name="full_name"
-                           value="{{old('full_name')}}"
-                           placeholder="@lang('{{base_namespace_small}}.full_name')"
-                           class="form-control form-control-lg"
                            maxlength="100"
-                           minlength="2"
-                           data-error-required="{{ __('{{base_namespace_small}}.name_required') }}"
-                           data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
-                           data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
+                           placeholder="@lang('dashboard.arabic_full_name')"
                     >
-                    <div class="text-danger small mt-1">
-                        @error('full_name')
-                        {{ $message }}
-                        @enderror
-                    </div>
-
                 </div>
-
-
+                {{--                full name en--}}
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label">@lang('dashboard.english_full_name')</label>
+                    <input type="text" data-error-emoji="{{__('dashboard.no-emoji')}}"
+                           class="form-control form-control-lg"
+                           name="full_name_en"
+                           required
+                           value="{{old('full_name_en')}}"
+                           data-error-minlength="{{ __('dashboard.min_length') . 2 }}"
+                           data-error-html="{{ __('dashboard.no_html_tags') }}"
+                           data-error-required="{{ __('dashboard.this_field_is_required') }}"
+                           minlength="2"
+                           maxlength="100"
+                           pattern=""
+                           placeholder="@lang('dashboard.english_full_name')"
+                    >
+                </div>
+                <!--  National Field -->
 
                 <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label"
-                    >@lang('{{base_namespace_small}}.email')</label>
+                    <label class="form-label">@lang('dashboard.email')</label>
                     <input type="email"
-                           placeholder="@lang('{{base_namespace_small}}.email')"
+                           placeholder="@lang('dashboard.email')"
                            name="email"
                            value="{{old('email')}}"
                            required
-                           data-error-required="{{ __('{{base_namespace_small}}.email_required') }}"
-                           data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
-                           data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
+                           data-error-required="{{ __('dashboard.this_field_is_required') }}"
+                           data-error-minlength="{{ __('dashboard.min_length') . 2 }}"
+                           data-error-html="{{ __('dashboard.no_html_tags') }}"
                            class="form-control form-control-lg"
                            maxlength="100"
                            minlength="2"
                     >
-                    <div class="text-danger small mt-1">
-                        @error('email')
-                        {{ $message }}
-                        @enderror
-                    </div>
+                </div>
+
+
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label">@lang('dashboard.mobile')</label>
+                    <input type="tel"
+                           class="form-control form-control-lg"
+                           placeholder="@lang('dashboard.mobile')"
+                           id="phone"
+                           name="phone"
+                           dir="ltr"
+                           required
+                           data-error-required="{{ __('dashboard.this_field_is_required') }}"
+                           data-error-number="{{ __('dashboard.please_add_numbers_only') }}"
+                           data-error-minlength="{{ __('dashboard.min_length') . 2 }}"
+                           data-error-html="{{ __('dashboard.no_html_tags') }}"
+                           minlength="2"
+                           maxlength="14"
+                           value="{{ old('phone') }}"
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                    >
+                </div>
+
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label">@lang('dashboard.code')</label>
+                    <input type="text" data-error-emoji="{{__('dashboard.no-emoji')}}"
+                           name="code"
+                           pattern="^[A-Za-z0-9]+$"
+                           value="{{old('code')}}"
+                           data-error-minlength="{{ __('dashboard.min_length') . 2 }}"
+                           data-error-html="{{ __('dashboard.no_html_tags') }}"
+                           data-error-required="{{ __('dashboard.this_field_is_required') }}"
+                           minlength="2"
+                           maxlength="20"
+                           class="form-control form-control-lg"
+                           placeholder="@lang('dashboard.code')">
+
+                </div>
+                <!--  National Field -->
+
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label" for="country_id">@lang('dashboard.country')</label>
+                    <select
+                        required
+                        style="height: 48px;"
+                        data-error-required="{{ __('dashboard.this_field_is_required') }}"
+                        name="country_id" id="country_div" class="form-control form-select form-control-lg">
+                        <option disabled selected value="">@lang('dashboard.loading')</option>
+                    </select>
+                </div>
+
+
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label" for="city_id">@lang('dashboard.city')</label>
+                    <select name="city_id" id="city_div"
+                            style="height: 48px;"
+                            required
+                            data-error-required="{{ __('dashboard.this_field_is_required') }}"
+                            class="form-control form-select form-control-lg">
+                        <option disabled selected value="">@lang('dashboard.choose_country_first')</option>
+                    </select>
 
                 </div>
                 <div class="mb-4 col-lg-6 col-md-12 col-sm-12 position-relative">
-                    <label class="form-label">@lang('{{base_namespace_small}}.mobile')</label>
-                    <input type="tel"
-                           class="form-control form-control-lg"
-                           placeholder="@lang('{{base_namespace_small}}.mobile')"
-                           id="phone"
-                           name="mobile"
-                           dir="ltr"
-                           required
-                           data-error-required="{{ __('{{base_namespace_small}}.phone_required') }}"
-                           data-error-number="{{ __('{{base_namespace_small}}.please_add_numbers_only') }}"
-                           data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
-                           data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
-                           minlength="2"
-                           maxlength="14"
-                           value="{{ old('mobile') }}">
-                </div>
-
-
-                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label"
-                    >@lang('{{base_namespace_small}}.address')</label>
-                    <textarea name="address"
-                              placeholder="@lang('{{base_namespace_small}}.address')"
-                              maxlength="100"
-                              minlength="2"
-                              data-error-required="{{ __('{{base_namespace_small}}.last_name_ar_required') }}"
-                              data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
-                              data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
-                              class="form-control form-control-lg">{{old('address')}}</textarea>
-                    <div class="text-danger small mt-1">
-                        @error('address')
-                        {{ $message }}
-                        @enderror
-                    </div>
-
-                </div>
-                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label"
-                    >@lang('{{base_namespace_small}}.identity')</label>
-                    <input type="text"
-                           name="identity"
-                           placeholder="@lang('{{base_namespace_small}}.identity')"
-                           value="{{ old('identity') }}"
-                           maxlength="20"
-                           minlength="2"
-                           data-error-minlength="{{ __('{{base_namespace_small}}.min_length') . 2 }}"
-                           data-error-html="{{ __('{{base_namespace_small}}.no_html_tags') }}"
-                           class="form-control form-control-lg"
-                           oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-
-                    <div class="text-danger small mt-1">
-                        @error('identity')
-                        {{ $message }}
-                        @enderror
-                    </div>
-
-                </div>
-                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label"
-                    >@lang('{{base_namespace_small}}.image')</label>
-                    <input type="file"
-                           name="image"
-                           data-error-required="{{ __('{{base_namespace_small}}.image_required') }}"
-                           accept=".png,.jpg,.jpeg"
-                           data-max-size="5000000"
-                           data-error-file="@lang('{{base_namespace_small}}.file_error',['type' => '.png, .jpg, .jpeg', 'size' => '5MB'])"
-                           class="form-control form-control-lg">
-                </div>
-                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label">@lang('{{base_namespace_small}}.role')</label>
-                    <select name="role" class="form-select"
-                            style="height: 48px;" required data-error-required="{{ __('{{base_namespace_small}}.role_required') }}">
-                        <option disabled hidden value="" {{ old('role', ${{variable}}->role ?? null) ? '' : 'selected' }}>
-                        @lang('{{base_namespace_small}}.role')
-                        </option>
-                        @foreach($roles as $role)
-                        <option value="{{ $role->name }}"
-                                {{ old('role', ${{variable}}->role ?? null) == $role->name ? 'selected' : '' }}>
-                        {{ $role->name }}
-                        </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label">@lang('{{base_namespace_small}}.country')</label>
-                    <select name="country_id"
+                    <label class="form-label" for="district_id">@lang('dashboard.district')</label>
+                    <select name="district_id" id="district_id" class="form-control form-select form-control-lg"
                             style="height: 48px;"
-                            class="form-select">
-                        <option disabled
-                                hidden {{ old('country_id', ${{variable}}->country_id ?? null) ? '' : 'selected' }}>
-                        @lang('{{base_namespace_small}}.country')
-                        </option>
-                        @foreach($countries as $country)
-                        <option value="{{ $country->id }}"
-                                {{ old('country_id', ${{variable}}->country_id ?? null) == $country->id ? 'selected' : '' }}>
-                        {{ $country->name }}
-                        </option>
-                        @endforeach
+                            disabled>
+                        <option disabled selected>@lang('dashboard.choose_city_first')</option>
                     </select>
                 </div>
 
-                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label">@lang('{{base_namespace_small}}.nationality')</label>
-                    <select name="nationality_id"
-                            style="height: 48px;"
-                            class="form-select">
-                        <option disabled
-                                hidden {{ old('nationality_id', ${{variable}}->nationality_id ?? null) ? '' : 'selected' }}>
-                        @lang('{{base_namespace_small}}.nationality')
-                        </option>
-                        @foreach($countries as $country)
-                        <option value="{{ $country->id }}"
-                                {{ old('nationality_id', ${{variable}}->nationality_id ?? null) == $country->id ? 'selected' : '' }}>
-                        {{ $country->nationality }}
-                        </option>
-                        @endforeach
-                    </select>
-                </div>
+
+                {{--                    ddl depend on custome query come from controller --}}
+                {{--                    <div class="mb-4 col-lg-6 col-md-12 col-sm-12">--}}
+                    {{--                        <label class="form-label" for="type_id">@lang('dashboard.type')</label>--}}
+                    {{--                        <select required--}}
+                                                        {{--                                style="height: 48px;"--}}
+                                                        {{--                                data-error-required="{{ __('dashboard.this_field_is_required') }}"--}}
+                                                        {{--                                name="cultural_entity_type_id" class="form-control form-select form-control-lg">--}}
+                        {{--                            <option disabled hidden value="" {{ old('cultural_entity_type_id', $culturalEntity->cultural_entity_type_id ?? null) ? '' : 'selected' }}>--}}
+                        {{--                                @lang('dashboard.choose_type')--}}
+                        {{--                            </option>--}}
+                        {{--                            @foreach($types as $type)--}}
+                        {{--                                <option value="{{ $type->id }}"--}}
+                                                                    {{--                                    {{ old('cultural_entity_type_id', $culturalEntity->cultural_entity_type_id ?? null) == $type->id ? 'selected' : '' }}>--}}
+                        {{--                                    {{ $type->name }}--}}
+                        {{--                                </option>--}}
+                        {{--                            @endforeach--}}
+                        {{--                        </select>--}}
+
+                    {{--                    </div>--}}
+
 
                 <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label"
-                    >@lang('{{base_namespace_small}}.password')</label>
+                    <label class="form-label" for="password">@lang('dashboard.password')</label>
                     <div class="position-relative">
                         <input type="password"
-                               name="password"
+                               name="temp_password"
                                id="password"
                                class="form-control form-control-lg form_password"
                                placeholder="*********"
                                required
+                               data-error-required="{{ __('dashboard.this_field_is_required') }}"
+                               maxlength="20"
+                               minlength="8"
+                               data-error-minlength="{{ __('dashboard.min_length') . 8 }}"
                                autocomplete="off"
-                               data-error-strength="{{ __('{{base_namespace_small}}.password_strength') }}"
+                               data-error-strength="{{ __('dashboard.password_strength') }}"
                                data-password-strength
-                               data-error-required="{{ __('{{base_namespace_small}}.password_required') }}"
-
+                               aria-labelledby="password-label"
+                               aria-describedby="password-help"
                         >
-
-                        <span class="abs_iconN password_TgBttn"><i
-                                class="fas fa-eye password-toggle-icon"></i></span>
+                        <span class="abs_iconN password_TgBttn" onclick="togglePasswordVisibility('password')">
+                                 <i class="fas fa-eye password-toggle-icon" aria-hidden="true" aria-label="Show/Hide password"></i>
+                            </span>
                     </div>
-                    <div class="text-danger small mt-1">
+                    <div class="text-danger small mt-1" id="password-help">
                         @error('password')
                         {{ $message }}
                         @enderror
                     </div>
                 </div>
+
                 <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
-                    <label class="form-label"
-                    >@lang('{{base_namespace_small}}.confirm_password')</label>
-                    <div class="position-relative">
-                        <input type="password"
-                               name="password_confirmation"
-                               class="form-control form-control-lg form_password"
-                               placeholder="*********"
-                               required
-                               id="confirm_password"
-                               same-password="#password"
-                               autocomplete="off"
-                               data-error-required="{{ __('{{base_namespace_small}}.password_conformation_required') }}"
+                    <label class="form-label">@lang('dashboard.address')</label>
+                    <textarea name="address"
+                              required
+                              data-error-minlength="{{ __('dashboard.min_length') . 2 }}"
+                              data-error-html="{{ __('dashboard.no_html_tags') }}"
+                              data-error-required="{{ __('dashboard.this_field_is_required') }}"
+                              minlength="2"
+                              maxlength="255"
+                              class="form-control form-control-lg"
+                              placeholder="@lang('dashboard.address')">{{old('address')}}</textarea>
 
-                               data-error-same="{{ __('{{base_namespace_small}}.password_not_same') }}"
-                        >
-
-                        <span class="abs_iconN password_TgBttn"><i
-                                class="fas fa-eye password-toggle-icon"></i></span>
-                    </div>
-                    <div class="text-danger small mt-1">
-                        @error('password_confirmation')
-                        {{ $message }}
-                        @enderror
-                    </div>
 
                 </div>
+                {{--                 consider that the file name is the collection name   --}}
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12">
+                    <label class="form-label">@lang('dashboard.logo')</label>
+                    <input type="file" style="@if(app()->getLocale() === 'ar') direction: ltr !important; @endif"
+                           name="image"
+                           {{--                               required--}}
+                           data-error-required="@lang('dashboard.this_field_is_required')"
+                           data-error-size="@lang('dashboard.image_max_size_is_2mb')"
+                           data-error-type="@lang('dashboard.invalid_image_type')"
+                           accept=".png,.jpg,.jpeg"
+                           data-max-size="2000000"
+                           data-error-file="@lang('dashboard.file_error',['type' => '.png, .jpg, .jpeg, .pdf', 'size' => '2MB'])"
+                           class="form-control form-control-lg">
+                </div>
 
-                <div class="col-12 d-flex ">
+                <div class="mb-4 col-lg-6 col-md-12 col-sm-12" style="margin-bottom: 0px !important;">
+                    <label class="form-label">@lang('dashboard.select_location_on_map')</label>
+                    <div id="map"
+                         data-error-message="{{ __('dashboard.this_field_is_required') }}"
+
+                         style="height: 350px;"></div>
+
+                    <input type="hidden" name="latitude" id="latitude">
+                    <input type="hidden" name="longitude" id="longitude">
+                    <input type="hidden" name="location" id="location">
+                </div>
+                <div class="text-danger small mt-1 map-error">
+                    {{ __('dashboard.map_error') }}
+                </div>
+
+                <div class="col-12 d-flex" style="margin-top: 60px">
                     <button type="submit"
-                            data-saving="@lang('{{base_namespace_small}}.saving')"
+                            data-saving="@lang('dashboard.saving')"
                             class="save-btn  me-2"
-                            data-i18n="buttons.save">@lang('{{base_namespace_small}}.save')</button>
+                            data-i18n="buttons.save">@lang('dashboard.save')</button>
                     <a type="button"
                        class="me-2 cancel-btn"
-                       href="{{ route('{{base_namespace_small}}.{{snakePlural}}.index') }}"
+                       href="{{ route('{{dashboard_small}}.{{base_namespace_small}}.{{snakePlural}}.index') }}"
                     >
-                        @lang('{{base_namespace_small}}.cancel')
+                        @lang('dashboard.cancel')
                     </a>
                 </div>
             </form>
@@ -370,217 +305,355 @@
     </div>
 </div>
 @endsection
+
 @section('scripts')
-@publicScript('just-validate.min.js')
-@jsLang('{{base_namespace_small}}.this_field_is_required', '{{base_namespace_small}}.no_html_tags', '{{base_namespace_small}}.max_length' , '{{base_namespace_small}}.min_length', '{{base_namespace_small}}.email_invalid')
-@vite(['resources/js/global-validator.js'])
+
+{{--    start password script--}}
+
 {{--    <script>--}}
     {{--        document.addEventListener('DOMContentLoaded', function () {--}}
-        {{--            const phoneInputField = document.querySelector("#phone");--}}
-        {{--            if (!phoneInputField) return;--}}
+        {{--            const passwordInputs = document.querySelectorAll('input[type="password"]');--}}
 
-        {{--            const form = phoneInputField.closest("form");--}}
-        {{--            const phoneInput = window.intlTelInput(phoneInputField, {--}}
-            {{--                initialCountry: "sa",--}}
-            {{--                preferredCountries: ["sa", "eg", "ae"],--}}
-            {{--                separateDialCode: true,--}}
-            {{--                nationalMode: false,--}}
-            {{--                utilsScript: "{{ asset('assets/js/tel.min.js') }}"--}}
-            {{--            });--}}
+        {{--            passwordInputs.forEach(input => {--}}
+            {{--                // Block paste--}}
+                {{--                input.addEventListener('paste', function (e) {--}}
+                {{--                    e.preventDefault();--}}
+                {{--                });--}}
 
-        {{--            // Create error message element--}}
-            {{--            const errorElement = document.createElement('div');--}}
-            {{--            errorElement.className = 'invalid-feedback';--}}
-            {{--            errorElement.style.display = 'none';--}}
-            {{--            phoneInputField.parentNode.appendChild(errorElement);--}}
+                {{--                // Block copy/cut--}}
+                    {{--                input.addEventListener('copy', function (e) {--}}
+                    {{--                    e.preventDefault();--}}
+                    {{--                });--}}
 
-            {{--            // Integrate with global validation--}}
-                {{--            form.addEventListener("submit", function (e) {--}}
-                {{--                const isValid = phoneInput.isValidNumber();--}}
+                    {{--                input.addEventListener('cut', function (e) {--}}
+                        {{--                    e.preventDefault();--}}
+                        {{--                });--}}
 
-                {{--                if (!isValid) {--}}
-                    {{--                    phoneInputField.classList.add("is-invalid");--}}
-                    {{--                    errorElement.textContent = 'Please enter a valid phone number';--}}
-                    {{--                    errorElement.style.display = 'block';--}}
+                    {{--                // Block drag-and-drop--}}
+                        {{--                input.addEventListener('dragstart', function (e) {--}}
+                        {{--                    e.preventDefault();--}}
+                        {{--                });--}}
 
-                    {{--                    // Let global validator handle the prevention--}}
-                        {{--                    return; // Don't preventDefault here--}}
-                        {{--                } else {--}}
-                        {{--                    phoneInputField.classList.remove("is-invalid");--}}
-                        {{--                    errorElement.style.display = 'none';--}}
+                        {{--                input.addEventListener('dragover', function (e) {--}}
+                            {{--                    e.preventDefault();--}}
+                            {{--                    e.dataTransfer.dropEffect = 'none';--}}
+                            {{--                });--}}
 
-                        {{--                    // Format the number properly before submission--}}
-                            {{--                    phoneInputField.value = phoneInput.getNumber();--}}
-                            {{--                }--}}
+                        {{--                input.addEventListener('drop', function (e) {--}}
+                            {{--                    e.preventDefault();--}}
+                            {{--                });--}}
+
+                        {{--                // Block right-click menu--}}
+                            {{--                input.addEventListener('contextmenu', function (e) {--}}
+                            {{--                    e.preventDefault();--}}
+                            {{--                });--}}
                             {{--            });--}}
-                        {{--        });--}}
+                            {{--        })--}}
+
                         {{--    </script>--}}
 
+{{--end password script--}}
 
+{{--    --}}
+
+{{--    start map script--}}
+
+{{--    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>--}}
+{{--    <script src="https://cdn.jsdelivr.net/npm/leaflet-geosearch@3.11.0/dist/bundle.min.js"></script>--}}
+{{--    <script src="{{asset('assets')}}/js/leaflet-simple-locate.min.js"></script>--}}
+
+{{--    <script>--}}
+    {{--        (function () {--}}
+        {{--            document.addEventListener('DOMContentLoaded', () => {--}}
+            {{--                const mapEl = document.getElementById('map');--}}
+            {{--                if (!mapEl) return;--}}
+
+            {{--                const map = L.map('map').setView([30.0444, 31.2357], 6);--}}
+
+            {{--                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {--}}
+                {{--                    attribution: '© OpenStreetMap contributors',--}}
+                {{--                }).addTo(map);--}}
+
+            {{--                let marker;--}}
+            {{--                let hasPinnedLocation = false;--}}
+            {{--                const errorDiv = document.querySelector('.map-error');--}}
+
+            {{--                function showMapError() {--}}
+                {{--                    mapEl.classList.add('is-invalid');--}}
+                {{--                    if (errorDiv) errorDiv.style.display = 'block';--}}
+                {{--                }--}}
+
+            {{--                function clearMapError() {--}}
+                {{--                    mapEl.classList.remove('is-invalid');--}}
+                {{--                    if (errorDiv) errorDiv.style.display = 'none';--}}
+                {{--                }--}}
+
+            {{--                // expose to window for the form validator--}}
+                {{--                window.checkMapValidation = function () {--}}
+                {{--                    if (!hasPinnedLocation) {--}}
+                    {{--                        showMapError();--}}
+                    {{--                        return false;--}}
+                    {{--                    }--}}
+                {{--                    return true;--}}
+                {{--                };--}}
+                {{--                window.showMapError = showMapError;--}}
+
+                {{--                // --- Check for old() values on page load -----}}
+                    {{--                const oldLat = parseFloat('{{ old('latitude', '') }}');--}}
+                    {{--                const oldLng = parseFloat('{{ old('longitude', '') }}');--}}
+                    {{--                if (!isNaN(oldLat) && !isNaN(oldLng)) {--}}
+                        {{--                    marker = L.marker([oldLat, oldLng]).addTo(map)--}}
+                        {{--                        .bindPopup('Previous location').openPopup();--}}
+                        {{--                    map.setView([oldLat, oldLng], 14);--}}
+                        {{--                    hasPinnedLocation = true;--}}
+                        {{--                    clearMapError();--}}
+
+                        {{--                    // Fill hidden inputs (ضروري لو القيم كانت موجودة بس inputs فاضية)--}}
+                            {{--                    document.getElementById('latitude').value = oldLat;--}}
+                            {{--                    document.getElementById('longitude').value = oldLng;--}}
+                            {{--                    document.getElementById('location').value = 'Previous location';--}}
+                            {{--                }--}}
+
+                            {{--                // --- Manual click selection -----}}
+                                {{--                map.on('click', function (e) {--}}
+                                {{--                    const lat = e.latlng.lat;--}}
+                                {{--                    const lng = e.latlng.lng;--}}
+
+                                {{--                    if (marker) map.removeLayer(marker);--}}
+
+                                {{--                    marker = L.marker([lat, lng]).addTo(map)--}}
+                                {{--                        .bindPopup('Selected location').openPopup();--}}
+
+                                {{--                    document.getElementById('latitude').value = lat;--}}
+                                {{--                    document.getElementById('longitude').value = lng;--}}
+                                {{--                    document.getElementById('location').value = 'Manual click';--}}
+
+                                {{--                    hasPinnedLocation = true;--}}
+                                {{--                    clearMapError();--}}
+                                {{--                });--}}
+
+                                {{--                // --- GeoSearch integration -----}}
+                                    {{--                setTimeout(() => {--}}
+                                    {{--                    if (window.GeoSearch) {--}}
+                                        {{--                        const provider = new GeoSearch.OpenStreetMapProvider();--}}
+                                        {{--                        const searchControl = new GeoSearch.GeoSearchControl({--}}
+                                            {{--                            provider: provider,--}}
+                                            {{--                            style: 'bar',--}}
+                                            {{--                            autoClose: true,--}}
+                                            {{--                            showMarker: false,--}}
+                                            {{--                            retainZoomLevel: false,--}}
+                                            {{--                            searchLabel: '{{ __('dashboard.search_for_a_place') }}',--}}
+                                            {{--                            keepResult: true,--}}
+                                            {{--                        });--}}
+                                        {{--                        map.addControl(searchControl);--}}
+                                        {{--                    }--}}
+                                    {{--                }, 500);--}}
+
+                                    {{--                // --- Handle search result -----}}
+                                        {{--                map.on('geosearch/showlocation', function (result) {--}}
+                                        {{--                    const { x: lng, y: lat, label } = result.location;--}}
+
+                                        {{--                    if (marker) map.removeLayer(marker);--}}
+
+                                        {{--                    marker = L.marker([lat, lng]).addTo(map)--}}
+                                        {{--                        .bindPopup(label).openPopup();--}}
+
+                                        {{--                    map.setView([lat, lng], 14);--}}
+
+                                        {{--                    document.getElementById('latitude').value = lat;--}}
+                                        {{--                    document.getElementById('longitude').value = lng;--}}
+                                        {{--                    document.getElementById('location').value = label;--}}
+
+                                        {{--                    hasPinnedLocation = true;--}}
+                                        {{--                    clearMapError();--}}
+                                        {{--                });--}}
+                                        {{--            });--}}
+                                        {{--        })();--}}
+                                    {{--    </script>--}}
+
+{{--end map script--}}
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const imageField = document.querySelector('input[type="file"][name="image"]');
+        const countrySelect  = document.getElementById('country_div');
+        const citySelect     = document.getElementById('city_div');
+        const districtSelect = document.getElementById('district_id');
 
-        if (!imageField) return;
+        const TXT = {
+            chooseCountry: `@lang('dashboard.choose_country')`,
+            chooseCountryFirst: `@lang('dashboard.choose_country_first')`,
+            chooseCityFirst: `@lang('dashboard.choose_city_first')`,
+            chooseCity: `@lang('dashboard.choose_city')`,
+            chooseDistrict: `@lang('dashboard.choose_district')`,
+            loading: `@lang('dashboard.loading')`,
+            noCities: `@lang('dashboard.no_cities')`,
+            noDistricts: `@lang('dashboard.no_districts')`,
+            countriesLoadError: `@lang('dashboard.countries_load_error')`,
+        };
 
-        // Get allowed types and max size from attributes
-        const allowedTypes = (imageField.getAttribute('accept') || '').split(',').map(ext => ext.trim().toLowerCase());
-        const maxSize = parseInt(imageField.dataset.maxSize) || 5000000; // default 5MB
-        const required = imageField.hasAttribute('required');
-        const requiredMessage = imageField.dataset.errorRequired || 'This field is required.';
+        // قيم قديمة/التعديل
+        const initialCountry  = "{{ old('country_id', $culturalEntity->country_id ?? '') }}";
+        const initialCity     = "{{ old('city_id',     $culturalEntity->city_id     ?? '') }}";
+        const initialDistrict = "{{ old('district_id', $culturalEntity->district_id ?? '') }}";
 
-        // Create or get error container
-        let errorMessage = imageField.parentElement.querySelector('.text-danger');
-        if (!errorMessage) {
-            errorMessage = document.createElement('div');
-            errorMessage.classList.add('text-danger', 'mt-1', 'small');
-            imageField.parentElement.appendChild(errorMessage);
+        // Helpers
+        const setCountryPlaceholder  = (t)=> countrySelect.innerHTML  = `<option disabled selected value="">${t}</option>`;
+        const setCityPlaceholder     = (t)=> { citySelect.innerHTML   = `<option disabled selected value="">${t}</option>`; citySelect.disabled = true; };
+        const setDistrictPlaceholder = (t)=> { districtSelect.innerHTML = `<option disabled selected value="">${t}</option>`; districtSelect.disabled = true; };
+        const enable  = (el)=> el.disabled = false;
+
+        const normalizeList = (payload) => {
+            if (Array.isArray(payload)) return payload;
+            if (payload && Array.isArray(payload.data))  return payload.data;
+            if (payload && Array.isArray(payload.items)) return payload.items;
+            // أحيانًا بترجع ككائنات مفاتيحها IDs
+            if (payload && typeof payload === 'object') return Object.values(payload);
+            return [];
+        };
+
+        async function loadCountries(selectedId = null) {
+            setCountryPlaceholder(TXT.loading);
+            try {
+                const res  = await fetch(`{{ route('admin.dashboard.admin.country.ddl') }}`, { headers: { 'Accept':'application/json' } });
+                const data = normalizeList(await res.json());
+
+                countrySelect.innerHTML = `<option disabled selected value="">${TXT.chooseCountry}</option>`;
+                data.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = c.name;
+                    if (String(selectedId ?? '') === String(c.id)) opt.selected = true;
+                    countrySelect.appendChild(opt);
+                });
+
+                if (!countrySelect.value) {
+                    countrySelect.selectedIndex = 0;
+                    countrySelect.options[0].selected = true;
+                }
+            } catch (e) {
+                console.error('Countries error:', e);
+                setCountryPlaceholder(TXT.countriesLoadError);
+            }
         }
 
-        imageField.addEventListener('change', function () {
-            const file = imageField.files[0];
-            let isValid = true;
+        async function loadCities(countryId, selectedId = null) {
+            if (!countryId) {
+                setCityPlaceholder(TXT.chooseCountryFirst);
+                setDistrictPlaceholder(TXT.chooseCityFirst);
+                return;
+            }
+            setCityPlaceholder(TXT.loading);
+            setDistrictPlaceholder(TXT.chooseCityFirst);
 
-            // Reset any previous error state
-            errorMessage.innerHTML = '';
-            errorMessage.style.display = 'none';
-            imageField.classList.remove('is-invalid');
+            try {
+                const res  = await fetch(`/dashboard/ddl/cities/${countryId}`, { headers: { 'Accept':'application/json' } });
+                const data = normalizeList(await res.json());
 
-            if (!file) {
-                if (required) {
-                    isValid = false;
-                    errorMessage.innerHTML = requiredMessage;
+                enable(citySelect);
+                citySelect.innerHTML = `<option disabled value="">${TXT.chooseCity}</option>`;
+                data.forEach(city => {
+                    const opt = document.createElement('option');
+                    opt.value = city.id;
+                    opt.textContent = city.name;
+                    if (String(selectedId ?? '') === String(city.id)) opt.selected = true;
+                    citySelect.appendChild(opt);
+                });
+
+                if (!citySelect.value) {
+                    citySelect.selectedIndex = 0;
+                    citySelect.options[0].selected = true;
+                }
+            } catch (e) {
+                console.error('Cities error:', e);
+                setCityPlaceholder(TXT.noCities);
+            }
+        }
+
+        async function fetchDistrictsWithFallback(cityId) {
+            // المحاولة الأولى: endpoint الحالي
+            try {
+                const r1  = await fetch(`/dashboard/ddl/district/${cityId}`, { headers: { 'Accept':'application/json' } });
+                if (!r1.ok) throw new Error('primary endpoint not ok: ' + r1.status);
+                return normalizeList(await r1.json());
+            } catch (e1) {
+                console.warn('Primary districts endpoint failed, trying fallback…', e1);
+                // بديل: المسار القديم/البديل
+                const r2  = await fetch(`/dashboard/cities/${cityId}/districts`, { headers: { 'Accept':'application/json' } });
+                if (!r2.ok) throw new Error('fallback endpoint not ok: ' + r2.status);
+                return normalizeList(await r2.json());
+            }
+        }
+
+        async function loadDistricts(cityId, selectedId = null) {
+            if (!cityId) {
+                setDistrictPlaceholder(TXT.chooseCityFirst);
+                return;
+            }
+
+            setDistrictPlaceholder(TXT.loading);
+
+            try {
+                const data = await fetchDistrictsWithFallback(cityId);
+
+                enable(districtSelect);
+                districtSelect.innerHTML = `<option disabled value="">${TXT.chooseDistrict}</option>`;
+                data.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d.id;
+                    opt.textContent = d.name;
+                    if (String(selectedId ?? '') === String(d.id)) opt.selected = true;
+                    districtSelect.appendChild(opt);
+                });
+
+                if (!districtSelect.value) {
+                    districtSelect.selectedIndex = 0;
+                    districtSelect.options[0].selected = true;
+                }
+            } catch (e) {
+                console.error('Districts error:', e);
+                setDistrictPlaceholder(TXT.noDistricts);
+            }
+        }
+
+        // تغيّر الدولة
+        countrySelect.addEventListener('change', async function () {
+            const cId = this.value || '';
+            await loadCities(cId, null);
+
+            // لو أول مدينة اتحددت تلقائيًا
+            const firstCityId = citySelect.value;
+            if (firstCityId) {
+                await loadDistricts(firstCityId, null);
+            } else {
+                setDistrictPlaceholder(TXT.chooseCityFirst);
+            }
+        });
+
+        // تغيّر المدينة
+        citySelect.addEventListener('change', function () {
+            const cityId = this.value || '';
+            loadDistricts(cityId, null);
+        });
+
+        // تهيئة أولية – تحفظ القيم القديمة تلقائيًا
+        (async function hydrate() {
+            await loadCountries(initialCountry);
+            if (initialCountry) {
+                await loadCities(initialCountry, initialCity);
+                if (initialCity) {
+                    await loadDistricts(initialCity, initialDistrict);
+                } else {
+                    setDistrictPlaceholder(TXT.chooseCityFirst);
                 }
             } else {
-                const fileExt = '.' + file.name.split('.').pop().toLowerCase();
-                if (!allowedTypes.includes(fileExt)) {
-                    isValid = false;
-                    {{--errorMessage.innerHTML = `@lang('{{base_namespace_small}}.file_error', ['type' => '.png, .jpg, .jpeg', 'size' => '5MB'])`;--}}
-                } else if (file.size > maxSize) {
-                    isValid = false;
-                    {{--errorMessage.innerHTML = `@lang('{{base_namespace_small}}.file_error', ['type' => '.png, .jpg, .jpeg', 'size' => '5MB'])`;--}}
-                }
+                setCityPlaceholder(TXT.chooseCountryFirst);
+                setDistrictPlaceholder(TXT.chooseCityFirst);
             }
-
-            if (!isValid) {
-                imageField.classList.add('is-invalid');
-                errorMessage.style.display = 'block';
-            }
-        });
+        })();
     });
 </script>
 
-
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const slugInput = document.querySelector('input[name="slug"]');
-        const titleInput = document.querySelector('input[name="title_en"]');
-
-        let isSlugEditedManually = false;
-
-        // Helper: Remove non-English letters (A-Z, a-z, numbers, and dash only)
-        function sanitizeToEnglish(text) {
-            return text
-                .replace(/\s+/g, '-')           // Replace spaces with dashes
-                .replace(/-+/g, '-')            // Replace multiple dashes with a single one
-                .replace(/[^a-zA-Z0-9-]/g, '')  // Remove non-English characters
-                .toLowerCase();                 // Lowercase
-        }
-
-        slugInput.addEventListener('input', function () {
-            isSlugEditedManually = true;
-            this.value = sanitizeToEnglish(this.value);
-        });
-
-        function generateSlug(text) {
-            return text
-                .toString()
-                .normalize("NFD")                      // Normalize accented characters
-                .replace(/[\u0300-\u036f]/g, '')       // Remove accents
-                .replace(/[^\x00-\x7F]/g, '')          // Remove non-ASCII characters (non-English)
-                .replace(/[^\w\s-]/g, '')              // Remove special symbols
-                .trim()
-                .replace(/\s+/g, '-')                  // Replace spaces with dashes
-                .toLowerCase();
-        }
-
-        titleInput.addEventListener('input', function () {
-            if (!isSlugEditedManually) {
-                slugInput.value = generateSlug(this.value);
-            }
-        });
-    });
-</script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const imageInput = document.querySelector('input[name="image"]');
-
-        // عناصر المعاينة
-        const previewContainer = document.createElement('div');
-        previewContainer.style.position = 'relative';
-        previewContainer.style.display = 'none';
-        previewContainer.style.marginTop = '10px';
-        previewContainer.style.maxWidth = '200px';
-
-        const preview = document.createElement('img');
-        preview.style.width = '100%';
-        preview.style.borderRadius = '6px';
-        preview.style.display = 'block';
-
-        const removeBtn = document.createElement('button');
-        removeBtn.textContent = '✖';
-        removeBtn.type = 'button';
-        removeBtn.style.position = 'absolute';
-        removeBtn.style.top = '4px';
-        removeBtn.style.right = '4px';
-        removeBtn.style.background = 'rgba(220, 53, 69, 0.9)';
-        removeBtn.style.color = '#fff';
-        removeBtn.style.border = 'none';
-        removeBtn.style.borderRadius = '50%';
-        removeBtn.style.width = '24px';
-        removeBtn.style.height = '24px';
-        removeBtn.style.cursor = 'pointer';
-        removeBtn.style.fontSize = '14px';
-        removeBtn.style.lineHeight = '22px';
-        removeBtn.style.textAlign = 'center';
-        removeBtn.style.padding = '0';
-        removeBtn.title = 'Remove image';
-
-        const errorMsg = document.createElement('div');
-        errorMsg.className = 'text-danger small mt-1';
-        errorMsg.style.display = 'none';
-
-        previewContainer.appendChild(preview);
-        previewContainer.appendChild(removeBtn);
-        imageInput.parentNode.appendChild(previewContainer);
-        imageInput.parentNode.appendChild(errorMsg);
-
-        // عند اختيار صورة
-        imageInput.addEventListener('change', function () {
-            const file = this.files[0];
-            previewContainer.style.display = 'none';
-            errorMsg.style.display = 'none';
-
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    preview.src = e.target.result;
-                    previewContainer.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // إزالة الصورة عند الضغط على ✖
-        removeBtn.addEventListener('click', function () {
-            imageInput.value = '';
-            preview.src = '';
-            previewContainer.style.display = 'none';
-            errorMsg.style.display = 'none';
-        });
-    });
-</script>
+@publicScript('just-validate.min.js')
+@jsLang('dashboard.this_field_is_required', 'dashboard.no_html_tags', 'dashboard.max_length' , 'dashboard.min_length', 'dashboard.email_invalid', 'dashboard.password_invalid','dashboard.email_invalid', 'dashboard.saving')
+@vite(['resources/js/global-validator.js'])
 @endsection

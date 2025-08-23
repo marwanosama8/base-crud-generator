@@ -79,7 +79,7 @@ class GenerateCrudCommand extends Command
             app_path("Repositories/Interfaces"),
             app_path("Models"),
             app_path("Http/Requests"),
-            database_path("migrations"),
+//            database_path("migrations"),
             resource_path("views/{$smallFirstLetterNamespace}/{$smallFirstLetterDashboard}/{$this->snakePlural}"),
         ];
 
@@ -95,7 +95,7 @@ class GenerateCrudCommand extends Command
             'Repository' => app_path("Repositories/{$this->singular}Repository.php"),
             'RepositoryInterface' => app_path("Repositories/Interfaces/{$this->singular}RepositoryInterface.php"),
             'Model' => app_path("Models/{$this->singular}.php"),
-            'Migration' => database_path("migrations/" . date('Y_m_d_His') . "_create_{$this->snakePlural}_table.php"),
+//            'Migration' => database_path("migrations/" . date('Y_m_d_His') . "_create_{$this->snakePlural}_table.php"),
             'StoreRequest' => app_path("Http/Requests/{$this->singular}/Store{$this->singular}Request.php"),
             'UpdateRequest' => app_path("Http/Requests/{$this->singular}/Update{$this->singular}Request.php"),
             'IndexView' => resource_path("views/{$smallFirstLetterNamespace}/{$smallFirstLetterDashboard}/{$this->snakePlural}/index.blade.php"),
@@ -126,7 +126,9 @@ class GenerateCrudCommand extends Command
                 '{{variable}}',
                 '{{namespace}}',
                 '{{base_namespace_capital}}',
-                '{{base_namespace_small}}'
+                '{{base_namespace_small}}',
+                '{{dashboard_capital}}',
+                '{{dashboard_small}}',
             ],
             [
                 $this->singular,
@@ -137,6 +139,8 @@ class GenerateCrudCommand extends Command
                 $this->laravel->getNamespace(),
                 ucfirst(strtolower($this->namespace)),
                 lcfirst(strtolower($this->namespace)),
+                ucfirst(strtolower($this->dashboard)),
+                lcfirst(strtolower($this->dashboard)),
             ],
             $content
         );
