@@ -10,12 +10,13 @@ use Illuminate\Support\Str;
 
 class GenerateCrudCommand extends Command
 {
-    protected $signature = 'make:crud {name} {namespace}';
+    protected $signature = 'make:crud {name} {namespace} {dashboard}';
     protected $description = 'Generate complete CRUD operations';
 
     protected $filesystem;
 
     protected $namespace;
+    protected $dashboard;
     protected $modelName;
     protected $singular;
     protected $plural;
@@ -31,12 +32,13 @@ class GenerateCrudCommand extends Command
     {
         $this->modelName = $this->argument('name');
         $this->namespace = $this->argument('namespace');
+        $this->dashboard = $this->argument('dashboard');
         $this->singular = Str::singular($this->modelName);
         $this->plural = Str::plural($this->modelName);
         $this->snakePlural = Str::snake($this->plural, '-');
 
-        $this->createDirectories($this->namespace);
-        $this->generateFiles($this->namespace);
+        $this->createDirectories($this->namespace, $this->dashboard);
+        $this->generateFiles($this->namespace, $this->dashboard);
         $this->addRoutes();
         $this->updateComposerAutoload();
 
@@ -44,16 +46,18 @@ class GenerateCrudCommand extends Command
         $this->line("Run migrations: php artisan migrate");
     }
 
-    protected function createDirectories($namespace)
+    protected function createDirectories($namespace, $dashboard)
     {
         $capitalFirstLetterNamespace = ucfirst(strtolower($namespace));
         $smallFirstLetterNamespace = lcfirst(strtolower($namespace));
+        $capitalFirstLetterDashboard = ucfirst(strtolower($dashboard));
+        $smallFirstLetterDashboard = lcfirst(strtolower($dashboard));
         $directories = [
-            app_path("Http/Controllers/{$smallFirstLetterNamespace}"),
+            app_path("Http/Controllers/{$capitalFirstLetterNamespace}/{$capitalFirstLetterDashboard}"),
             app_path("Repositories"),
             app_path("Http/Requests"),
             app_path("Models"),
-            resource_path("views/{$smallFirstLetterNamespace}/{$this->plural}"),
+            resource_path("views/{$smallFirstLetterNamespace}/{$smallFirstLetterDashboard}/{$this->plural}"),
         ];
 
         foreach ($directories as $dir) {
@@ -63,19 +67,20 @@ class GenerateCrudCommand extends Command
         }
     }
 
-    protected function generateFiles($namespace)
+    protected function generateFiles($namespace, $dashboard)
     {
         $capitalFirstLetterNamespace = ucfirst(strtolower($namespace));
         $smallFirstLetterNamespace = lcfirst(strtolower($namespace));
-
+        $capitalFirstLetterDashboard = ucfirst(strtolower($dashboard));
+        $smallFirstLetterDashboard = lcfirst(strtolower($dashboard));
         // Define all directories that need to exist
         $directories = [
-            app_path("Http/Controllers/{$smallFirstLetterNamespace}"),
+            app_path("Http/Controllers/{$capitalFirstLetterNamespace}/{$capitalFirstLetterDashboard}"),
             app_path("Repositories/Interfaces"),
             app_path("Models"),
             app_path("Http/Requests"),
             database_path("migrations"),
-            resource_path("views/{$smallFirstLetterNamespace}/{$this->snakePlural}"),
+            resource_path("views/{$smallFirstLetterNamespace}/{$smallFirstLetterDashboard}/{$this->snakePlural}"),
         ];
 
         // Create directories if they don't exist
@@ -86,18 +91,18 @@ class GenerateCrudCommand extends Command
         }
 
         $files = [
-            'Controller' => app_path("Http/Controllers/{$smallFirstLetterNamespace}/{$this->singular}Controller.php"),
+            'Controller' => app_path("Http/Controllers/{$capitalFirstLetterNamespace}/{$capitalFirstLetterDashboard}/{$this->singular}Controller.php"),
             'Repository' => app_path("Repositories/{$this->singular}Repository.php"),
             'RepositoryInterface' => app_path("Repositories/Interfaces/{$this->singular}RepositoryInterface.php"),
             'Model' => app_path("Models/{$this->singular}.php"),
             'Migration' => database_path("migrations/" . date('Y_m_d_His') . "_create_{$this->snakePlural}_table.php"),
             'StoreRequest' => app_path("Http/Requests/{$this->singular}/Store{$this->singular}Request.php"),
             'UpdateRequest' => app_path("Http/Requests/{$this->singular}/Update{$this->singular}Request.php"),
-            'IndexView' => resource_path("views/{$smallFirstLetterNamespace}/{$this->snakePlural}/index.blade.php"),
-            'CreateView' => resource_path("views/{$smallFirstLetterNamespace}/{$this->snakePlural}/create.blade.php"),
-            'EditView' => resource_path("views/{$smallFirstLetterNamespace}/{$this->snakePlural}/edit.blade.php"),
-            'ShowView' => resource_path("views/{$smallFirstLetterNamespace}/{$this->snakePlural}/show.blade.php"),
-            'ArchiveView' => resource_path("views/{$smallFirstLetterNamespace}/{$this->snakePlural}/archive.blade.php"),
+            'IndexView' => resource_path("views/{$smallFirstLetterNamespace}/{$smallFirstLetterDashboard}/{$this->snakePlural}/index.blade.php"),
+            'CreateView' => resource_path("views/{$smallFirstLetterNamespace}/{$smallFirstLetterDashboard}/{$this->snakePlural}/create.blade.php"),
+            'EditView' => resource_path("views/{$smallFirstLetterNamespace}/{$smallFirstLetterDashboard}/{$this->snakePlural}/edit.blade.php"),
+            'ShowView' => resource_path("views/{$smallFirstLetterNamespace}/{$smallFirstLetterDashboard}/{$this->snakePlural}/show.blade.php"),
+            'ArchiveView' => resource_path("views/{$smallFirstLetterNamespace}/{$smallFirstLetterDashboard}/{$this->snakePlural}/archive.blade.php"),
         ];
 
         foreach ($files as $stubType => $filePath) {
@@ -139,8 +144,9 @@ class GenerateCrudCommand extends Command
 
     protected function addRoutes()
     {
-        $namespace = $this->namespace;
-        $controllerNamespace = "App\\Http\\Controllers\\{$namespace}\\{$this->singular}Controller";
+        $ucNamespace = ucfirst(strtolower($this->namespace));
+        $ucDashboard = ucfirst(strtolower($this->dashboard));
+        $controllerNamespace = "App\\Http\\Controllers\\{$ucNamespace}\\{$ucDashboard}\\{$this->singular}Controller";
         $repositoryInterface = "App\\Repositories\\Interfaces\\{$this->singular}RepositoryInterface";
         $repository = "App\\Repositories\\{$this->singular}Repository";
 
